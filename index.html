@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob:" />
+    <link rel="icon" href="talkready.png" />
+    <title>TalkReady · Inglês para conversar</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M0 100V30A30 30 0 0 1 30 0H70A30 30 0 0 1 100 30V70A30 30 0 0 1 70 100Z" fill="#F2F3F5"/><rect x="24" y="54" width="12" height="16" rx="6" fill="#14161B"/><rect x="44" y="42" width="12" height="28" rx="6" fill="#14161B"/><rect x="64" y="30" width="12" height="40" rx="6" fill="#2B59FF"/></svg>
+          <div><strong>TalkReady</strong><span>inglês para conversar</span></div>
+        </div>
+        <nav class="main-nav" aria-label="Navegação principal">
+          <button class="nav-item active" data-section="hoje"><span>⌂</span> Hoje</button>
+          <button class="nav-item" data-section="modulos"><span>▦</span> Módulos</button>
+          <button class="nav-item" data-section="revisar"><span>↻</span> Frases</button>
+          <button class="nav-item" data-section="pronuncia"><span>◉</span> Pronúncia</button>
+          <button class="nav-item" data-section="conversar"><span>✦</span> Conversar</button>
+          <button class="nav-item" data-section="ouvir"><span>♫</span> Ouvir</button>
+          <button class="nav-item" data-section="progresso"><span>↗</span> Progresso</button>
+        </nav>
+        <div class="sidebar-tip">
+          <strong>Espaço = microfone</strong>
+          <p>Aperte <b>Espaço</b> para falar e de novo para parar. Se a máquina entende você, um gringo também entende.</p>
+        </div>
+        <div class="voice-status" id="voiceStatus">🎙 Carregando voz…</div>
+        <button class="settings-link" id="openSettings">⚙ Ajustes</button>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <button class="timer-chip" id="timerChip" hidden></button>
+          <div class="topbar-spacer"></div>
+          <div class="streak"><span>🔥</span><strong id="streakCount">0</strong> dias seguidos</div>
+        </header>
+
+        <!-- HOJE -->
+        <section id="hoje" class="page-section active-section">
+          <div class="welcome-row">
+            <div>
+              <p class="eyebrow" id="todayLabel"></p>
+              <h1>Bora, Davi<span>.</span></h1>
+              <p class="lead" id="todayLead"></p>
+            </div>
+            <div class="daily-score"><span>HOJE</span><strong><b id="todayMin">0</b>/<b id="todayGoal">60</b></strong><small>minutos</small></div>
+          </div>
+          <div class="bar big"><span id="todayBar"></span></div>
+          <div class="card setup-card" id="setupCard" hidden></div>
+          <button class="primary-button hero-button" id="guided">▶ Começar treino guiado</button>
+          <button class="card module-cta" id="moduleCta"></button>
+          <div class="block-grid" id="blockGrid"></div>
+          <div class="two-col">
+            <div class="card mission-card">
+              <p class="eyebrow" id="missionLabel">MISSÃO DA SEMANA</p>
+              <label class="mission"><input type="checkbox" id="missionDone" /><span id="missionText"></span></label>
+            </div>
+            <div class="card car-card">
+              <p class="eyebrow">🚗 ÁUDIO PARA O CARRO</p>
+              <p class="muted small">Suas frases em áudio, estilo Pimsleur: português → pausa para você falar → inglês. Salva no OneDrive e aparece no celular.</p>
+              <button class="outline-button" id="dailyAudio">Gerar áudio de hoje</button>
+            </div>
+          </div>
+          <div class="note-card"><p class="eyebrow" id="phaseLabel"></p><h2 id="phaseTitle"></h2><p id="phaseText"></p></div>
+          <p class="muted small">No trabalho, pode fazer um dia silencioso de escuta. Reserve <b>2 sessões por semana</b> para conversar e se ouvir; uma já ajuda, e a terceira é opcional. <a href="ESTUDO.md" target="_blank">Ver rotina sugerida</a>.</p>
+        </section>
+
+        <!-- MÓDULOS -->
+        <section id="modulos" class="page-section"></section>
+
+        <!-- FRASES -->
+        <section id="revisar" class="page-section">
+          <div class="page-intro"><p class="eyebrow">REPETIÇÃO ESPAÇADA</p><h1>Frases<span>.</span></h1><p>Veja o português e <b>diga em inglês</b> (Espaço). O app confere, mostra a resposta e traz cada frase de volta na hora certa.</p></div>
+          <div class="card srs-card" id="srsCard"></div>
+          <p class="muted small center" id="srsStats"></p>
+          <div class="two-col">
+            <div class="card">
+              <p class="eyebrow">✨ GERAR FRASES COM IA</p>
+              <div class="form-row"><input id="deckTopic" placeholder="Sobre o quê? Ex.: futebol, meu trabalho, academia" /><button class="primary-button" id="genDeck">Gerar 10</button></div>
+            </div>
+            <div class="card">
+              <p class="eyebrow">+ FRASE PRÓPRIA</p>
+              <div class="form-row"><input id="newEn" placeholder="Inglês" /><input id="newPt" placeholder="Português" /><button class="outline-button" id="addCard">Adicionar</button></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRONÚNCIA -->
+        <section id="pronuncia" class="page-section">
+          <div class="page-intro"><p class="eyebrow" id="soundEyebrow">SOM DA SEMANA</p><h1 id="soundTitle">Pronúncia<span>.</span></h1><p>Ouça, repita junto com o áudio 3× (shadowing), depois grave 🎤. Compare sua voz com a original e veja o que a máquina entendeu.</p></div>
+          <div class="chips" id="soundChips"></div>
+          <div class="card"><p class="tip" id="soundTip"></p></div>
+          <div class="card pairs-card" id="pairsCard" hidden></div>
+          <div id="soundPhrases"></div>
+        </section>
+
+        <!-- CONVERSAR -->
+        <section id="conversar" class="page-section">
+          <div class="page-intro"><p class="eyebrow">CONVERSA POR VOZ</p><h1>Conversar<span>.</span></h1><p>Escolha uma situação e fale (Espaço). Travou? Fale em português no botão <b>PT</b> que o parceiro te ensina a frase. No fim, peça a correção.</p></div>
+          <div class="card key-card" id="keyCard" hidden>
+            <strong>Falta a API key do Claude</strong>
+            <p class="muted">Fica guardada criptografada só neste computador.</p>
+            <div class="form-row"><input id="keyInput" type="password" placeholder="sk-ant-..." /><button class="primary-button" id="saveKey">Salvar</button></div>
+          </div>
+          <div class="scenario-grid" id="scenarioGrid"></div>
+          <div class="chat" id="chat" hidden>
+            <div class="chat-head">
+              <strong id="chatTitle"></strong>
+              <label class="toggle"><input type="checkbox" id="hideText" checked /> Ouvir antes de ler</label>
+              <button class="outline-button" id="endChat">Encerrar e corrigir ✓</button>
+            </div>
+            <div class="chat-log" id="chatLog"></div>
+            <div class="kit-row" id="kitRow"></div>
+            <div class="chat-input">
+              <button class="mic primary big" id="chatMic" title="Falar em inglês (Espaço)">🎤</button>
+              <button class="mic pt" id="chatMicPt" title="Travou? Fale em português e o parceiro te ensina a frase">PT</button>
+              <textarea id="chatInput" rows="1" placeholder="…ou digite (Enter envia)"></textarea>
+              <button class="primary-button" id="sendChat">Enviar</button>
+            </div>
+          </div>
+          <div class="card" id="review" hidden></div>
+        </section>
+
+        <!-- OUVIR -->
+        <section id="ouvir" class="page-section">
+          <div class="page-intro"><p class="eyebrow">TREINO DE OUVIDO</p><h1>Ouvir<span>.</span></h1><p>Episódios curtos feitos para o seu nível: ouça <b>sem ler</b>, responda, depois confira o texto e repita as falas.</p></div>
+          <div class="card">
+            <p class="eyebrow">🎧 EPISÓDIO NOVO</p>
+            <div class="form-row"><input id="epTopic" /><button class="primary-button" id="genEpisode">Gerar episódio</button></div>
+          </div>
+          <div id="episode"></div>
+          <div class="card timer-card"><div><p class="eyebrow">TIMER PARA VÍDEOS E PODCASTS</p><strong class="big-number" id="listenClock">0:00</strong><p class="muted small">Conta mesmo com o app minimizado. Trânsito ouvindo inglês também vale.</p></div><button class="primary-button" id="listenToggle">Iniciar</button></div>
+          <div class="resource-list" id="resourceList"></div>
+        </section>
+
+        <!-- PROGRESSO -->
+        <section id="progresso" class="page-section">
+          <div class="page-intro"><p class="eyebrow">SEU CAMINHO</p><h1>Progresso<span>.</span></h1><p>O que mais prevê resultado é tempo acumulado. O Raio-X mostra a sua fala mudando.</p></div>
+          <div class="stats-grid" id="statsGrid"></div>
+          <div class="card"><p class="eyebrow">ÚLTIMOS 14 DIAS (MINUTOS)</p><div class="chart" id="chart"></div></div>
+          <div class="card" id="xray"></div>
+        </section>
+
+        <div class="toast" id="toast" role="status"></div>
+      </main>
+    </div>
+
+    <div class="modal-backdrop" id="settings" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+        <h2 id="settingsTitle">Ajustes</h2>
+        <label>API key do Claude <small class="muted" id="keyStatus"></small></label>
+        <input id="keyInput2" type="password" placeholder="sk-ant-... (vazio = manter a atual)" />
+        <label>Seu nível (o Raio-X ajusta sozinho)</label>
+        <select id="levelSel"><option value="A1">A1 · iniciante</option><option value="A2">A2 · básico</option><option value="B1">B1 · intermediário</option></select>
+        <div class="grid-2">
+          <div><label>Meta dia útil (min)</label><input id="goalWeekday" type="number" min="15" max="180" /></div>
+          <div><label>Meta fim de semana (min)</label><input id="goalWeekend" type="number" min="15" max="180" /></div>
+        </div>
+        <label>Frases novas por dia</label>
+        <input id="newPerDay" type="number" min="0" max="30" />
+        <label><input type="checkbox" id="reminderOn" /> Abrir o TalkReady sozinho todo dia às <input id="reminderTime" type="time" class="inline" /></label>
+        <div class="form-row end"><button class="outline-button" id="closeSettings">Cancelar</button><button class="primary-button" id="saveSettings">Salvar</button></div>
+      </div>
+    </div>
+
+    <script src="logic.js"></script>
+    <script src="data.js"></script>
+    <script src="modules.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

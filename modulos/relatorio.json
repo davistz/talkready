@@ -1,0 +1,1094 @@
+[
+  {
+    "arquivo": "m01-d01",
+    "texto": "Hi! I'm Sarah. What's your name?",
+    "ouvido": "Hi, I'm Sarah. What's your name?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d02",
+    "texto": "Hi, Sarah. I'm George. Nice to meet you.",
+    "ouvido": "Hi Sarah, I'm George. Nice to meet you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d03",
+    "texto": "Nice to meet you too. Where are you from?",
+    "ouvido": "Nice to meet you too. Where are you from?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d04",
+    "texto": "I'm from Brazil. And you?",
+    "ouvido": "I'm from Brazil. And you?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d05",
+    "texto": "I'm from Chicago. Is this your first time here?",
+    "ouvido": "I'm from Chicago. Is this your first time here?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d06",
+    "texto": "Yes, it is. I'm really enjoying it.",
+    "ouvido": "Yes, it is. I'm really enjoying it.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d07",
+    "texto": "That's great! How long are you staying?",
+    "ouvido": "That's great. How long are you staying?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-d08",
+    "texto": "Just one week. It was nice talking to you!",
+    "ouvido": "Just one week. It was nice talking to you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-f01",
+    "texto": "What's your name?",
+    "ouvido": "What's your name?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-f02",
+    "texto": "Nice to meet you.",
+    "ouvido": "Nice to meet you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-f03",
+    "texto": "Where are you from?",
+    "ouvido": "Where are you from?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-f04",
+    "texto": "I'm from Brazil. And you?",
+    "ouvido": "I'm from Brazil, and you?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m01-f05",
+    "texto": "It was nice talking to you!",
+    "ouvido": "It was nice talking to you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d01",
+    "texto": "So, have you checked in at the hotel yet?",
+    "ouvido": "So, have you checked in at the hotel yet?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d02",
+    "texto": "Sorry, can you say that again?",
+    "ouvido": "Sorry, can you say that again?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d03",
+    "texto": "Sure. Did you go to the hotel already?",
+    "ouvido": "Sure. Did you go to the hotel already?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d04",
+    "texto": "Ah, yes, I did. Can you speak a little more slowly, please?",
+    "ouvido": "Ah, yes, I did. Can you speak a little more slowly, please?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d05",
+    "texto": "Of course, no problem. Is the room comfortable?",
+    "ouvido": "Of course, no problem. Is the room comfortable?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d06",
+    "texto": "Sorry, what does \"comfortable\" mean?",
+    "ouvido": "Sorry. What does comfortable mean?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d07",
+    "texto": "It means nice and relaxing, good for resting.",
+    "ouvido": "It means nice and relaxing, good for resting.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-d08",
+    "texto": "Oh, I see! Yes, it is very comfortable. Thank you!",
+    "ouvido": "Oh, I see. Yes, it is very comfortable. Thank you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-f01",
+    "texto": "Sorry, can you say that again?",
+    "ouvido": "Sorry, can you say that again?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-f02",
+    "texto": "Can you speak a little more slowly, please?",
+    "ouvido": "Can you speak a little more slowly, please?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-f03",
+    "texto": "What does that mean?",
+    "ouvido": "What does that mean?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-f04",
+    "texto": "Oh, I see!",
+    "ouvido": "Oh, I see.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m02-f05",
+    "texto": "How do you say \"obra\" in English?",
+    "ouvido": "How do you say \"Obra\" in English?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d01",
+    "texto": "So, what do you do?",
+    "ouvido": "So what do you do?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d02",
+    "texto": "I work with data at a construction company.",
+    "ouvido": "I work with data at a construction company.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d03",
+    "texto": "Oh, interesting! What do you do there, exactly?",
+    "ouvido": "Oh, interesting. What do you do there, exactly?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d04",
+    "texto": "I build reports and dashboards for the managers.",
+    "ouvido": "I build reports and dashboards for the managers.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d05",
+    "texto": "Do you like your job?",
+    "ouvido": "Do you like your job?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d06",
+    "texto": "Yes, I do. It's challenging, but I learn a lot. What about you?",
+    "ouvido": "Yes, I do. It's challenging, but I learn a lot. What about you?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d07",
+    "texto": "I'm a teacher. I teach English to kids.",
+    "ouvido": "I'm a teacher. I teach English to kids.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-d08",
+    "texto": "That sounds fun! Is it hard?",
+    "ouvido": "That sounds fun. Is it hard?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-f01",
+    "texto": "What do you do?",
+    "ouvido": "What do you do?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-f02",
+    "texto": "I work with data at a construction company.",
+    "ouvido": "I work with data at a construction company.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-f03",
+    "texto": "I build reports and dashboards.",
+    "ouvido": "I build reports and dashboards.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-f04",
+    "texto": "It's challenging, but I learn a lot.",
+    "ouvido": "It's challenging, but I learn a lot.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m03-f05",
+    "texto": "Do you like your job?",
+    "ouvido": "Do you like your job?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d01",
+    "texto": "What time do you usually wake up?",
+    "ouvido": "What time do you usually wake up?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d02",
+    "texto": "I usually wake up at six. I have breakfast and go to work.",
+    "ouvido": "I usually wake up at six. I have breakfast and go to work.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d03",
+    "texto": "Wow, early! How do you get to work?",
+    "ouvido": "Wow, early. How do you get to work?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d04",
+    "texto": "By car. It takes about twenty minutes.",
+    "ouvido": "By car, it takes about 20 minutes.",
+    "wer": 14,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d05",
+    "texto": "And what do you do after work?",
+    "ouvido": "And what do you do after work?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d06",
+    "texto": "I go to the gym, have dinner and watch a series.",
+    "ouvido": "I go to the gym, have dinner and watch a series.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d07",
+    "texto": "Sounds like a busy day!",
+    "ouvido": "Sounds like a busy day.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-d08",
+    "texto": "It is, but on weekends I rest.",
+    "ouvido": "It is, but on weekends I rest.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-f01",
+    "texto": "I usually wake up at six.",
+    "ouvido": "I usually wake up at six.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-f02",
+    "texto": "It takes about twenty minutes.",
+    "ouvido": "It takes about 20 minutes.",
+    "wer": 20,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-f03",
+    "texto": "What do you do after work?",
+    "ouvido": "What do you do after work?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-f04",
+    "texto": "I go to the gym.",
+    "ouvido": "I go to the gym.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m04-f05",
+    "texto": "On weekends, I rest.",
+    "ouvido": "On weekends, I rest.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d01",
+    "texto": "How was your weekend?",
+    "ouvido": "How was your weekend?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d02",
+    "texto": "It was great! I went to the beach with my family.",
+    "ouvido": "It was great. I went to the beach with my family.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d03",
+    "texto": "Nice! Was it sunny?",
+    "ouvido": "Nice! Was it sunny?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d04",
+    "texto": "Yes, very sunny. We swam and had lunch by the sea.",
+    "ouvido": "Yes, very sunny. We swam and had lunch by the sea.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d05",
+    "texto": "That sounds perfect. What did you do on Sunday?",
+    "ouvido": "That sounds perfect. What did you do on Sunday?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d06",
+    "texto": "I stayed home and watched a movie. I was tired.",
+    "ouvido": "I stayed home and watched a movie. I was tired.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d07",
+    "texto": "Which movie did you watch?",
+    "ouvido": "Which movie did you watch?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-d08",
+    "texto": "An old comedy. It was really funny!",
+    "ouvido": "An old comedy. It was really funny.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-f01",
+    "texto": "How was your weekend?",
+    "ouvido": "How was your weekend?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-f02",
+    "texto": "I went to the beach with my family.",
+    "ouvido": "I went to the beach with my family.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-f03",
+    "texto": "We had lunch by the sea.",
+    "ouvido": "We had lunch by the sea.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-f04",
+    "texto": "I stayed home and watched a movie.",
+    "ouvido": "I stayed home and watched a movie.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m05-f05",
+    "texto": "It was really funny!",
+    "ouvido": "It was really funny.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d01",
+    "texto": "What do you like to do in your free time?",
+    "ouvido": "What do you like to do in your free time?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d02",
+    "texto": "I like playing soccer and I'm really into technology.",
+    "ouvido": "I like playing soccer and I'm really into technology.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d03",
+    "texto": "Cool! Do you play every week?",
+    "ouvido": "Cool. Do you play every week?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d04",
+    "texto": "Yes, every Saturday with my friends. Do you like sports?",
+    "ouvido": "Yes, every Saturday with my friends. Do you like sports?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d05",
+    "texto": "Not really. It's not my thing. I prefer music.",
+    "ouvido": "Not really. It's not my thing. I prefer music.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d06",
+    "texto": "What kind of music do you like?",
+    "ouvido": "What kind of music do you like?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d07",
+    "texto": "Jazz and pop, mostly. And you?",
+    "ouvido": "Jazz and pop mostly, and you?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-d08",
+    "texto": "Me too! I love pop music.",
+    "ouvido": "Me too. I love pop music.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-f01",
+    "texto": "What do you like to do in your free time?",
+    "ouvido": "What do you like to do in your free time?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-f02",
+    "texto": "I'm really into technology.",
+    "ouvido": "I'm really into technology.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-f03",
+    "texto": "It's not my thing.",
+    "ouvido": "It's not my thing.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-f04",
+    "texto": "What kind of music do you like?",
+    "ouvido": "What kind of music do you like?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m06-f05",
+    "texto": "Me too!",
+    "ouvido": "Me too.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d01",
+    "texto": "Good evening! A table for one?",
+    "ouvido": "Good evening. A table for one?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d02",
+    "texto": "Yes, please. Can I see the menu?",
+    "ouvido": "Yes, please. Can I see the menu?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d03",
+    "texto": "Of course. Are you ready to order?",
+    "ouvido": "Of course. Are you ready to order?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d04",
+    "texto": "I'd like the chicken, please. What do you recommend to drink?",
+    "ouvido": "I'd like the chicken please. What do you recommend to drink?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d05",
+    "texto": "Our orange juice is really fresh.",
+    "ouvido": "Our orange juice is really fresh.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d06",
+    "texto": "Great, I'll have one. Thank you.",
+    "ouvido": "Great. I'll have one. Thank you.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-d07",
+    "texto": "How was everything?",
+    "ouvido": "How was everything?",
+    "wer": 0,
+    "tentativas": 2
+  },
+  {
+    "arquivo": "m07-d08",
+    "texto": "Delicious! Can I have the check, please?",
+    "ouvido": "Delicious. Can I have the check, please?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-f01",
+    "texto": "A table for one, please.",
+    "ouvido": "A table for one, please.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-f02",
+    "texto": "Can I see the menu?",
+    "ouvido": "Can I see the menu?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-f03",
+    "texto": "I'd like the chicken, please.",
+    "ouvido": "I'd like the chicken please.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-f04",
+    "texto": "What do you recommend?",
+    "ouvido": "What do you recommend?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m07-f05",
+    "texto": "Can I have the check, please?",
+    "ouvido": "Can I have the check please?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d01",
+    "texto": "I've never been to Brazil. What's it like?",
+    "ouvido": "I've never been to Brazil. What's it like?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d02",
+    "texto": "It's a big country, and the people are very friendly.",
+    "ouvido": "It's a big country and the people are very friendly.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d03",
+    "texto": "What should I eat there?",
+    "ouvido": "What should I eat there?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d04",
+    "texto": "You should try feijoada and açaí. They are delicious.",
+    "ouvido": "You should try Feijoada and Acai. They are delicious.",
+    "wer": 20,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d05",
+    "texto": "And where do you live?",
+    "ouvido": "And where do you live?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d06",
+    "texto": "I live in the northeast. The weather is hot all year.",
+    "ouvido": "I live in the northeast. The weather is hot all year.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d07",
+    "texto": "That sounds amazing. I love the beach!",
+    "ouvido": "That sounds amazing. I love the beach.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-d08",
+    "texto": "Then you will love it there. You should visit!",
+    "ouvido": "Then you will love it there. You should visit.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-f01",
+    "texto": "What's it like?",
+    "ouvido": "What's it like?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-f02",
+    "texto": "The people are very friendly.",
+    "ouvido": "The people are very friendly.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-f03",
+    "texto": "You should try feijoada.",
+    "ouvido": "You should try Fajewata.",
+    "wer": 25,
+    "tentativas": 2
+  },
+  {
+    "arquivo": "m08-f04",
+    "texto": "The weather is hot all year.",
+    "ouvido": "The weather is hot all year.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m08-f05",
+    "texto": "You should visit!",
+    "ouvido": "You should visit.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d01",
+    "texto": "What are you doing this weekend?",
+    "ouvido": "What are you doing this weekend?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d02",
+    "texto": "I'm going to visit my parents on Saturday.",
+    "ouvido": "I'm going to visit my parents on Saturday.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d03",
+    "texto": "Nice! And do you have any plans for the holidays?",
+    "ouvido": "Nice. And do you have any plans for the holidays?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d04",
+    "texto": "Yes! I'm going to travel to Portugal in December.",
+    "ouvido": "Yes, I'm going to travel to Portugal in December.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d05",
+    "texto": "Wow! Have you been there before?",
+    "ouvido": "Wow. Have you been there before?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d06",
+    "texto": "No, never. I'd like to see Lisbon and Porto.",
+    "ouvido": "No, never. I'd like to see Lisbon and Porto.",
+    "wer": 0,
+    "tentativas": 3
+  },
+  {
+    "arquivo": "m09-d07",
+    "texto": "You're going to love it. The food is amazing.",
+    "ouvido": "You're going to love it. The food is amazing.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-d08",
+    "texto": "I can't wait!",
+    "ouvido": "I can't wait.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-f01",
+    "texto": "What are you doing this weekend?",
+    "ouvido": "What are you doing this weekend?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-f02",
+    "texto": "I'm going to visit my parents.",
+    "ouvido": "I'm going to visit my parents.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-f03",
+    "texto": "I'm going to travel in December.",
+    "ouvido": "I'm going to travel in December.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-f04",
+    "texto": "I'd like to see Lisbon.",
+    "ouvido": "I'd like to see Lisbon.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m09-f05",
+    "texto": "I can't wait!",
+    "ouvido": "I can't wait.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d01",
+    "texto": "Excuse me, how do I get to the train station?",
+    "ouvido": "Excuse me, how do I get to the train station?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d02",
+    "texto": "Go straight ahead and turn left at the bank.",
+    "ouvido": "Go straight ahead and turn left at the bank.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d03",
+    "texto": "Turn left at the bank. Is it far from here?",
+    "ouvido": "Turn left at the bank. Is it far from here?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d04",
+    "texto": "No, it's about five minutes on foot.",
+    "ouvido": "No, it's about five minutes on foot.",
+    "wer": 0,
+    "tentativas": 2
+  },
+  {
+    "arquivo": "m10-d05",
+    "texto": "Great. Is there a pharmacy near the station?",
+    "ouvido": "Great. Is there a pharmacy near the station?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d06",
+    "texto": "Yes, there's one right next to it.",
+    "ouvido": "Yes, there's one right next to it.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d07",
+    "texto": "Perfect. Thank you so much for your help!",
+    "ouvido": "Perfect. Thank you so much for your help.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-d08",
+    "texto": "You're welcome. Have a nice day!",
+    "ouvido": "You're welcome. Have a nice day.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-f01",
+    "texto": "Excuse me, how do I get to the station?",
+    "ouvido": "Excuse me, how do I get to the station?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-f02",
+    "texto": "Turn left at the bank.",
+    "ouvido": "Turn left at the bank.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-f03",
+    "texto": "Is it far from here?",
+    "ouvido": "Is it far from here?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-f04",
+    "texto": "It's about five minutes on foot.",
+    "ouvido": "It's about five minutes on foot.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m10-f05",
+    "texto": "Thank you so much for your help!",
+    "ouvido": "Thank you so much for your help.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d01",
+    "texto": "Hi, George! It's Sarah. Do you have a minute?",
+    "ouvido": "Hi George, it's Sarah. Do you have a minute?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d02",
+    "texto": "Hi, Sarah! Sure, how can I help?",
+    "ouvido": "Hi Sarah. Sure, how can I help?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d03",
+    "texto": "Let's schedule a meeting about the new report.",
+    "ouvido": "Let's schedule a meeting about the new report.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d04",
+    "texto": "Good idea. Are you free on Tuesday?",
+    "ouvido": "Good idea. Are you free on Tuesday?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d05",
+    "texto": "Tuesday is bad for me. How about Wednesday at ten?",
+    "ouvido": "Tuesday is bad for me. How about Wednesday at 10?",
+    "wer": 10,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d06",
+    "texto": "Wednesday at ten works for me. I will send you an invite.",
+    "ouvido": "Wednesday at 10 works for me. I will send you an invite.",
+    "wer": 8,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d07",
+    "texto": "Perfect. Talk to you then!",
+    "ouvido": "Perfect. Talk to you then.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-d08",
+    "texto": "Talk to you then. Bye!",
+    "ouvido": "Talk to you then. Bye.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-f01",
+    "texto": "Do you have a minute?",
+    "ouvido": "Do you have a minute?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-f02",
+    "texto": "Let's schedule a meeting.",
+    "ouvido": "Let's schedule a meeting.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-f03",
+    "texto": "Are you free on Tuesday?",
+    "ouvido": "Are you free on Tuesday?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-f04",
+    "texto": "How about Wednesday at ten?",
+    "ouvido": "How about Wednesday at 10?",
+    "wer": 20,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m11-f05",
+    "texto": "That works for me.",
+    "ouvido": "That works for me.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d01",
+    "texto": "So, what do you think of the city so far?",
+    "ouvido": "So, what do you think of the city so far?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d02",
+    "texto": "I think it's beautiful, but it's a little cold for me!",
+    "ouvido": "I think it's beautiful, but it's a little cold for me.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d03",
+    "texto": "Ha, I know what you mean. Brazil is much warmer, right?",
+    "ouvido": "Huh, I know what you mean. Brazil is much warmer, right?",
+    "wer": 9,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d04",
+    "texto": "Exactly! What about you? Do you prefer hot or cold weather?",
+    "ouvido": "Exactly. What about you? Do you prefer hot or cold weather?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d05",
+    "texto": "Hot, definitely. That's why I want to visit Brazil.",
+    "ouvido": "Hot, definitely. That's why I want to visit Brazil.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d06",
+    "texto": "You should! I can show you around.",
+    "ouvido": "You should. I can show you around.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d07",
+    "texto": "That would be amazing. Let's keep in touch!",
+    "ouvido": "That would be amazing. Let's keep in touch.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-d08",
+    "texto": "Sure! It was really nice talking to you. Take care!",
+    "ouvido": "Sure. It was really nice talking to you. Take care.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-f01",
+    "texto": "What do you think of the city?",
+    "ouvido": "What do you think of the city?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-f02",
+    "texto": "I know what you mean.",
+    "ouvido": "I know what you mean.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-f03",
+    "texto": "What about you?",
+    "ouvido": "What about you?",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-f04",
+    "texto": "I can show you around.",
+    "ouvido": "I can show you around.",
+    "wer": 0,
+    "tentativas": 1
+  },
+  {
+    "arquivo": "m12-f05",
+    "texto": "Let's keep in touch!",
+    "ouvido": "Let's keep in touch.",
+    "wer": 0,
+    "tentativas": 1
+  }
+]
