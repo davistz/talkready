@@ -2,6 +2,7 @@ const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const dayKey = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const pick = (a) => a[Math.floor(Math.random() * a.length)];
+const touch = matchMedia('(pointer: coarse)').matches;
 const errMsg = (e) => String(e?.message || e).replace(/^Error invoking remote method '[^']+': (Error: )?/, '');
 
 const BLOCKS = [
@@ -46,7 +47,7 @@ function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.ad
 // ---------- voz que fala (Kokoro local; cai para a voz do Windows se não carregar) ----------
 let speechState = 'loading';
 api.onSpeechProgress((p) => {
-  if (p >= 0 && p < 100) $('#voiceStatus').textContent = `🎙 Baixando voz natural… ${p}%`;
+  if (p >= 0 && p < 100) $('#voiceStatus').textContent = `🎙 Baixando ${api.nativeVoice ? 'reconhecimento de voz' : 'voz natural'}… ${p}%`;
 });
 api.speechReady().then((ok) => {
   speechState = ok ? 'ready' : 'error';
@@ -55,7 +56,7 @@ api.speechReady().then((ok) => {
 });
 
 const audioCache = new Map();
-let playToken = 0, currentAudio = null;
+let playToken = 0;
 const sentences = (t) => (t.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g) || [t]).map((s) => s.trim()).filter(Boolean);
 function ttsUrl(text, voice) {
   const key = `${voice}|${text}`;
@@ -66,44 +67,80 @@ function ttsUrl(text, voice) {
   }
   return audioCache.get(key);
 }
-const prefetch = (text, voice) => speechState === 'ready' && sentences(text).forEach((s) => ttsUrl(s, voice).catch(() => {}));
-function playUrl(url, rate) {
+const prefetch = (text, voice) => !api.nativeVoice && speechState === 'ready' && sentences(text).forEach((s) => ttsUrl(s, voice).catch(() => {}));
+
+// Um único <audio> para tudo: no iPhone só o primeiro play precisa vir de um toque, depois o mesmo elemento toca sozinho.
+const player = new Audio(); player.preload = 'auto';
+let settle = null;
+const pendingVoice = new Set(); // falas e pausas da voz do sistema que um interrupt precisa encerrar
+function playSrc(src, rate, onFail) {
+  settle?.();
   return new Promise((res) => {
-    const a = currentAudio = new Audio(url);
-    a.playbackRate = rate; a.onended = a.onerror = a.onpause = res;
-    a.play().catch(res);
+    const finish = (fail) => {
+      if (settle !== done) return;
+      settle = null; player.onended = player.onerror = null;
+      res(fail && onFail ? onFail() : undefined);
+    };
+    const done = () => finish(false);
+    settle = done;
+    player.onended = done;
+    player.onerror = () => finish(true);
+    player.src = src; player.defaultPlaybackRate = rate; player.playbackRate = rate;
+    player.play().catch(() => finish(true));
   });
 }
+const playUrl = (url, rate) => playSrc(url, rate);
 let epRun = 0; // sequência do episódio em andamento; qualquer outro áudio pedido pelo usuário a interrompe
-function interrupt() { playToken++; currentAudio?.pause(); currentAudio = null; speechSynthesis.cancel(); }
+let carRun = 0; // áudio do carro ao vivo (versão web)
+function interrupt() {
+  playToken++; carRun++;
+  player.pause(); settle?.();
+  speechSynthesis.cancel(); pendingVoice.forEach((f) => f()); pendingVoice.clear();
+}
 function stopAudio() { epRun++; interrupt(); }
 const say = (text, opts) => { epRun++; return speakNow(text, opts); };
+
+// Voz do sistema (iPhone/Windows). Escolhe pelo sotaque e gênero da voz Kokoro pedida: af/am = americana, bf/bm = britânica.
+const FEMALE = /samantha|ava|allison|susan|zoe|nicky|kate|serena|stephanie|martha|moira|tessa|fiona|karen|victoria|zira|aria|jenny|libby|sonia|\bfemale\b/i;
+const MALE = /alex|aaron|fred|tom|evan|nathan|daniel|arthur|oliver|rishi|david|guy|ryan|george|\bmale\b/i;
+const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|junior|kathy|organ|princess|ralph|superstar|trinoids|whisper|wobble|zarvox|eddy|flo|grandma|grandpa|reed|rocko|sandy|shelley/i;
+function systemVoice(id = 'af_heart') {
+  const voices = speechSynthesis.getVoices().filter((v) => /^en[-_]/i.test(v.lang));
+  if (!voices.length) return null;
+  const lang = id[0] === 'b' ? 'en-GB' : 'en-US', male = id[1] === 'm';
+  const score = (v) => (v.lang.replace('_', '-') === lang ? 8 : 0) + ((male ? MALE : FEMALE).test(v.name) ? 4 : 0)
+    + (/premium|enhanced|natural|neural/i.test(v.name) ? 2 : 0) - (NOVELTY.test(v.name) ? 20 : 0);
+  return voices.reduce((a, b) => (score(b) > score(a) ? b : a));
+}
+function utter(text, { lang = 'en-US', voice = null, rate = 0.9 } = {}) {
+  return new Promise((res) => {
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang; if (voice) u.voice = voice; u.rate = rate;
+    const done = () => { pendingVoice.delete(done); res(); };
+    pendingVoice.add(done); u.onend = u.onerror = done;
+    speechSynthesis.speak(u);
+  });
+}
+const wait = (ms) => new Promise((res) => { const done = () => { clearTimeout(t); pendingVoice.delete(done); res(); }; const t = setTimeout(done, ms); pendingVoice.add(done); });
+
 async function speakNow(text, { voice = 'af_heart', rate = 1 } = {}) {
   interrupt(); const token = playToken;
-  if (speechState === 'ready') {
+  if (!api.nativeVoice && speechState === 'ready') {
     try {
       const urls = sentences(text).map((s) => ttsUrl(s, voice)); // o main gera em fila; tocamos assim que cada uma fica pronta
       urls.forEach((u) => u.catch(() => {}));
       for (const u of urls) { const url = await u; if (token !== playToken) return; await playUrl(url, rate); if (token !== playToken) return; }
       return;
-    } catch { /* cai para a voz do Windows */ }
+    } catch { /* cai para a voz do sistema */ }
   }
-  return new Promise((res) => {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US'; u.rate = rate * 0.9; u.voice = speechSynthesis.getVoices().find((v) => v.lang === 'en-US') || null;
-    u.onend = u.onerror = res; speechSynthesis.speak(u);
-  });
+  const v = systemVoice(voice);
+  return utter(text, { lang: v?.lang || (voice[0] === 'b' ? 'en-GB' : 'en-US'), voice: v, rate: rate * 0.9 });
 }
 
 // Áudio pré-gravado (módulos, VoiceStudio); se o arquivo não existir, fala com a voz local.
 function playFile(src, text, { voice = 'af_heart', rate = 1 } = {}) {
   interrupt();
-  return new Promise((res) => {
-    const a = currentAudio = new Audio(src);
-    a.playbackRate = rate; a.onended = a.onpause = res;
-    a.onerror = () => { if (currentAudio === a) res(speakNow(text, { voice, rate })); else res(); };
-    a.play().catch(() => {});
-  });
+  return playSrc(src, rate, () => speakNow(text, { voice, rate }));
 }
 
 // ---------- voz que ouve (Whisper local) ----------
@@ -116,12 +153,20 @@ async function startRec(btn) {
   mr.start();
   rec = { mr, stream, chunks, done, btn };
 }
+// Decodifica na taxa do aparelho e reamostra para 16 kHz mono (o Safari do iPhone não aceita bem AudioContext a 16 kHz).
+async function decode16k(data) {
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const buf = await ctx.decodeAudioData(data); ctx.close();
+  if (buf.sampleRate === 16000 && buf.numberOfChannels === 1) return buf;
+  const off = new OfflineAudioContext(1, Math.ceil(buf.duration * 16000), 16000);
+  const src = off.createBufferSource(); src.buffer = buf; src.connect(off.destination); src.start();
+  return off.startRendering();
+}
 async function stopRec() {
   const { mr, stream, chunks, done } = rec; rec = null;
   mr.stop(); await done; stream.getTracks().forEach((t) => t.stop());
   const blob = new Blob(chunks, { type: mr.mimeType });
-  const ctx = new AudioContext({ sampleRate: 16000 });
-  const buf = await ctx.decodeAudioData(await blob.arrayBuffer()); ctx.close();
+  const buf = await decode16k(await blob.arrayBuffer());
   const pcm = buf.getChannelData(0);
   let sum = 0; for (const x of pcm) sum += x * x;
   return { pcm, blob, seconds: buf.duration, rms: Math.sqrt(sum / pcm.length) };
@@ -149,12 +194,26 @@ async function micToggle(btn, onText, lang = 'english') {
   }
   if (speechState === 'error') return toast('O reconhecimento de voz não carregou. Reinicie o app; na conversa dá para digitar.');
   stopAudio();
-  try { await startRec(btn); btn.classList.add('rec'); } catch { toast('Não consegui usar o microfone. Veja Configurações do Windows > Privacidade > Microfone.'); }
+  try { await startRec(btn); btn.classList.add('rec'); } catch { toast(api.platform === 'web' ? 'Não consegui usar o microfone. No iPhone: Ajustes > Apps > Safari > Microfone > Permitir.' : 'Não consegui usar o microfone. Veja Configurações do Windows > Privacidade > Microfone.'); }
 }
 const playBlob = (blob) => { stopAudio(); return playUrl(URL.createObjectURL(blob), 1); };
 
 const scoreClass = (s) => s >= 90 ? 'ok' : s >= 60 ? 'mid' : 'bad';
-const resultHtml = (r, heard) => `<b class="${scoreClass(r.score)}">${r.score}%</b> ${r.words.map(([w, ok]) => `<span class="${ok ? 'w-ok' : 'w-bad'}">${esc(w)}</span>`).join(' ')}<br><small class="muted">A máquina ouviu: “${esc(heard)}”</small>`;
+// Palavra "duvidosa": a máquina reconheceu, mas o áudio sustentou pouco (ver whisper-score.js).
+const DOUBT = 0.5;
+const wordClass = (r, ok, i) => (!ok ? 'w-bad' : r.probs?.[i] < DOUBT ? 'w-doubt' : 'w-ok');
+const resultHtml = (r, heard) => {
+  const doubts = r.probs ? r.words.filter(([, ok], i) => ok && r.probs[i] < DOUBT).length : 0;
+  return `<b class="${scoreClass(r.score)}">${r.score}%</b> ${r.words.map(([w, ok], i) => `<span class="${wordClass(r, ok, i)}">${esc(w)}</span>`).join(' ')}<br><small class="muted">A máquina ouviu: “${esc(heard)}”</small>${doubts ? '<br><small class="doubt-note">Em amarelo: a máquina reconheceu, mas sem certeza. Capriche nesses sons.</small>' : ''}`;
+};
+// Pede a confiança por palavra em segundo plano; done(cmp com probs) quando chegar.
+function refine(cmp, pcm, target, done) {
+  if (!api.assess || !cmp.score) return;
+  api.assess(pcm, target).then((groups) => {
+    const probs = groups.flatMap((g) => norm(g.text).map(() => g.p));
+    if (probs.length === cmp.words.length) done({ ...cmp, probs });
+  }).catch((e) => console.warn('assess', e));
+}
 
 // ---------- teclado ----------
 document.addEventListener('keydown', (e) => {
@@ -200,6 +259,7 @@ setInterval(() => {
 }, 1000);
 $('#timerChip').onclick = () => { const nb = nextBlock(); if (nb && $('#timerChip').classList.contains('done')) show(nb.id); };
 window.addEventListener('beforeunload', save);
+document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
 const clock = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
 // ---------- HOJE ----------
@@ -245,6 +305,7 @@ async function renderHoje() {
 $('#dailyAudio').onclick = async () => {
   const learned = state.cards.filter((c) => !c.isNew).sort((a, b) => a.due - b.due).slice(0, 40);
   if (!learned.length) return toast('Revise algumas frases primeiro: o áudio usa as frases que você já viu.');
+  if (api.platform === 'web') return carLive(learned);
   if (speechState !== 'ready') return toast('A voz natural ainda está carregando. Tente em instantes.');
   const btn = $('#dailyAudio'); btn.disabled = true;
   const off = (p) => { btn.textContent = `Gerando… ${p}%`; };
@@ -252,6 +313,26 @@ $('#dailyAudio').onclick = async () => {
   try { await api.dailyAudio(learned.map(({ en, pt }) => ({ en, pt }))); toast(`Áudio com ${learned.length} frases salvo no OneDrive (pasta "TalkReady - Áudios").`); } catch (e) { toast(errMsg(e)); }
   btn.disabled = false; btn.textContent = 'Gerar áudio de hoje';
 };
+
+// Versão web: toca a sequência na hora (português, pausa para você falar, inglês, inglês devagar).
+async function carLive(cards) {
+  const btn = $('#dailyAudio'), playing = btn.dataset.playing;
+  stopAudio();
+  if (playing) return;
+  const run = carRun, live = () => run === carRun;
+  const pt = speechSynthesis.getVoices().find((v) => /^pt[-_]BR/i.test(v.lang)) || null, en = systemVoice('af_heart'), en2 = systemVoice('am_michael');
+  btn.dataset.playing = '1'; btn.textContent = '■ Parar áudio';
+  for (const c of cards) {
+    if (live()) await utter(c.pt, { lang: 'pt-BR', voice: pt, rate: 1 });
+    if (live()) await wait(3000);
+    if (live()) await utter(c.en, { lang: en?.lang || 'en-US', voice: en });
+    if (live()) await wait(1500);
+    if (live()) await utter(c.en, { lang: en2?.lang || 'en-US', voice: en2, rate: 0.7 });
+    if (live()) await wait(2500);
+    if (!live()) break;
+  }
+  delete btn.dataset.playing; btn.textContent = 'Tocar áudio de hoje';
+}
 
 // ---------- FRASES (SRS, SM-2 simplificado, falado) ----------
 let queue = [], flipped = false, srsHeard = null;
@@ -265,7 +346,7 @@ function renderSrs() {
   if (!queue.length) buildQueue();
   const c = queue[0], el = $('#srsCard');
   const dueTomorrow = state.cards.filter((x) => !x.isNew && x.due <= Date.now() + DAY).length;
-  $('#srsStats').textContent = `${state.cards.filter((x) => !x.isNew).length} frases aprendidas · ${state.cards.filter((x) => x.isNew).length} novas esperando · Espaço = falar · Enter = mostrar · 1–4 = nota`;
+  $('#srsStats').textContent = `${state.cards.filter((x) => !x.isNew).length} frases aprendidas · ${state.cards.filter((x) => x.isNew).length} novas esperando${touch ? '' : ' · Espaço = falar · Enter = mostrar · 1–4 = nota'}`;
   if (!c) { el.innerHTML = `<div class="srs-empty"><strong>Tudo revisado por hoje ✓</strong><p class="muted">Amanhã: ~${dueTomorrow} frases. Sobrou tempo? Gere frases sobre um assunto seu ou vá para a Pronúncia.</p></div>`; return; }
   if (!flipped) prefetch(c.en, 'af_heart');
   let suggested = -1;
@@ -286,7 +367,10 @@ function renderSrs() {
     el.querySelectorAll('[data-g]').forEach((b) => { b.onclick = () => grade(c, +b.dataset.g); });
   } else {
     $('#srsFlip').onclick = () => { flipped = true; renderSrs(); };
-    $('#srsMic').onclick = () => micToggle($('#srsMic'), (text, r) => { srsHeard = { text, r: compareWords(c.en, text), blob: r.blob }; flipped = true; renderSrs(); });
+    $('#srsMic').onclick = () => micToggle($('#srsMic'), (text, r) => {
+      const h = srsHeard = { text, r: compareWords(c.en, text), blob: r.blob }; flipped = true; renderSrs();
+      refine(h.r, r.pcm, c.en, (cmp) => { const el = $('#srsCard .result'); if (srsHeard === h && el) { h.r = cmp; el.innerHTML = resultHtml(cmp, text); } });
+    });
   }
 }
 function grade(c, g) {
@@ -347,6 +431,7 @@ document.addEventListener('click', async (e) => {
       p.blob = r.blob; p.heard = heard;
       const cmp = compareWords(p.text, heard);
       res.innerHTML = `<p class="result">${resultHtml(cmp, heard)}</p><div class="row"><button class="outline-button" data-act="me">▶ Você</button><button class="outline-button" data-act="play">▶ Original</button>${cmp.score < 100 ? '<button class="outline-button" data-act="why">🤔 Por que errei?</button>' : '<span class="ok">Perfeito! 🎯</span>'}</div><p class="why muted"></p>`;
+      refine(cmp, r.pcm, p.text, (c) => { const el = res.querySelector('.result'); if (p.heard === heard && el) el.innerHTML = resultHtml(c, heard); });
     });
   }
   if (act === 'why') {
@@ -541,7 +626,8 @@ function renderEpisode() {
 // ---------- MÓDULOS (curso de 12 semanas, áudio VoiceStudio) ----------
 let openModule = null, modRate = 1;
 const MOD_VOICE = { A: 'af_heart', B: 'bm_george' }, MOD_NAME = { A: 'Sarah', B: 'George' };
-const modSrc = (m, kind, i) => `modulos/m${String(m.id).padStart(2, '0')}-${kind}${String(i + 1).padStart(2, '0')}.ogg`;
+const MOD_EXT = player.canPlayType('audio/ogg; codecs=opus') ? 'ogg' : 'm4a'; // Safari do iPhone usa as cópias .m4a
+const modSrc = (m, kind, i) => `modulos/m${String(m.id).padStart(2, '0')}-${kind}${String(i + 1).padStart(2, '0')}.${MOD_EXT}`;
 function renderModulos() {
   const el = $('#modulos'), wk = ((weekNumber() - 1) % MODULES.length) + 1;
   if (!openModule) {
@@ -654,6 +740,7 @@ async function openSettings() {
   $('#goalWeekday').value = state.goals.weekday; $('#goalWeekend').value = state.goals.weekend;
   $('#newPerDay').value = state.newPerDay;
   $('#reminderOn').checked = Boolean(state.reminder); $('#reminderTime').value = state.reminder || '19:00';
+  $('#reminderRow').hidden = api.platform === 'web';
   $('#settings').classList.add('open');
 }
 $('#openSettings').onclick = openSettings;
@@ -674,5 +761,36 @@ $('#saveSettings').onclick = async () => {
   $('#settings').classList.remove('open'); show(current);
 };
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') $('#settings').classList.remove('open'); });
+
+// Levar o progresso entre PC e iPhone: exporta um .json e importa no outro aparelho.
+$('#exportData').onclick = async () => {
+  save();
+  const name = `talkready-${dayKey()}.json`, blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+  const file = new File([blob], name, { type: 'application/json' });
+  if (navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+};
+$('#importData').onclick = () => $('#importFile').click();
+$('#importFile').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  try {
+    const data = JSON.parse(await f.text());
+    if (data.v !== 3 || !Array.isArray(data.cards)) throw new Error('formato');
+    if (!confirm('Substituir o progresso deste aparelho pelo do arquivo?')) return;
+    state = { ...fresh(), ...data }; queue = []; save();
+    $('#settings').classList.remove('open'); show('hoje'); toast('Progresso importado.');
+  } catch { toast('Arquivo inválido. Use um arquivo exportado pelo TalkReady.'); } finally { e.target.value = ''; }
+};
+
+// Textos que mudam no iPhone/navegador.
+if (api.platform === 'web') {
+  $('#keyCard p').textContent = 'Fica salva só neste aparelho.';
+  $('.car-card .muted').textContent = 'Suas frases em áudio, estilo Pimsleur: português → pausa para você falar → inglês. Toca aqui mesmo, deixe a tela ligada.';
+  $('#dailyAudio').textContent = 'Tocar áudio de hoje';
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch((e) => console.warn('sw', e));
+}
 
 save(); show('hoje');

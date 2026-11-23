@@ -12,6 +12,17 @@ Na primeira vez:
 2. **Progresso → Raio-X do dia 1.** São 90 segundos falando: é o seu "antes".
 3. **Hoje → Começar treino guiado.**
 
+## Abrir no iPhone
+
+O TalkReady também roda como app web, instalado na tela de início.
+
+1. **Publicar (uma vez):** no GitHub, **Settings → Pages → Source: Deploy from a branch → main / (root) → Save**. Em 1 a 2 minutos ele fica em `https://davistz.github.io/talkready/`.
+2. **Instalar:** abra esse link no **Safari** do iPhone → botão **Compartilhar** → **Adicionar à Tela de Início**.
+3. **Primeira vez:** cole a API key em Ajustes (fica salva só no iPhone) e espere o download do reconhecimento de voz (~80 MB, só uma vez; melhor no Wi-Fi).
+4. **Levar o progresso do PC:** no PC, **Ajustes → Exportar**; no iPhone, **Ajustes → Importar** e escolha o arquivo.
+
+Diferenças no iPhone: a voz que fala é a do próprio iPhone (para vozes melhores, baixe as versões "Aprimorada" em Ajustes → Acessibilidade → Conteúdo Falado → Vozes → Inglês); o áudio do carro toca ao vivo em vez de gerar arquivo; não tem lembrete automático.
+
 ## O que tem
 
 | Área | O que faz |
@@ -29,11 +40,12 @@ Na primeira vez:
 ## Como funciona por dentro
 
 - **Voz local, sem custo:** Whisper (reconhecimento) e Kokoro (voz natural em inglês) rodam no próprio PC. Os modelos (~330 MB) ficam em `%LOCALAPPDATA%\TalkReady\models` e já estão baixados nesta máquina.
-- **IA (Claude Opus 5.5):** usada na conversa, nas correções, nos episódios, nas frases geradas, no "por que errei?" e no Raio-X. Custo estimado: **~US$ 0,30 por dia de treino completo (~US$ 10/mês)**. Para gastar ~40× menos, troque `MODEL` em `main.js` para `claude-haiku-5-5`, com correções um pouco menos finas.
+- **IA (Claude, modelo por tarefa):** conversa e episódios no Sonnet 5.5 (respostas rápidas), frases geradas no Haiku 5.5, e correção da conversa, "por que errei?" e Raio-X no Opus 5.5, onde a qualidade da análise importa. Para trocar, edite `MODELS` em [prompts.js](prompts.js), que vale para o PC e para o iPhone.
+- **Palavras em amarelo:** o Whisper tende a "corrigir" sua pronúncia (você diz "I fink so" e ele escreve "I think so"). Por isso, em Frases e Pronúncia, o app também mede a confiança dele em cada palavra da frase certa. Palavra reconhecida com pouca certeza fica amarela. O limite está em `DOUBT` no `app.js` (0,5).
 - **Áudio para o carro:** WAV salvo em `OneDrive\TalkReady - Áudios`. Pelo app do OneDrive, ele aparece no celular.
 - **Lembrete:** em Ajustes, o Windows pode abrir o TalkReady todo dia num horário (Agendador de Tarefas).
 - **Dados:** progresso no armazenamento do app (`%APPDATA%\talkready`). Gravações do Raio-X ficam em `%APPDATA%\talkready\gravacoes`.
-- **Áudio dos módulos:** gerado uma vez no VoiceStudio e salvo em `modulos/`. Cada fala é conferida pelo Whisper e refeita com outra semente se ele não entender. O resultado fica em `modulos/relatorio.json`. Se você editar `modules.js`, apague os `.ogg` alterados, abra o VoiceStudio e rode `node_modules\electron\dist\electron.exe ferramentas\gerar-modulos.cjs`. Sem o arquivo, o app usa a voz local.
+- **Áudio dos módulos:** gerado uma vez no VoiceStudio e salvo em `modulos/`. Cada fala é conferida pelo Whisper e refeita com outra semente se ele não entender. O resultado fica em `modulos/relatorio.json`. Se você editar `modules.js`, apague os `.ogg` alterados, abra o VoiceStudio e rode `node_modules\electron\dist\electron.exe ferramentas\gerar-modulos.cjs`. Depois gere as cópias `.m4a` que o iPhone toca: `for %f in (modulos\*.ogg) do ffmpeg -y -i "%f" -c:a aac -b:a 64k -ac 1 "%~dpnf.m4a"`. Sem o arquivo, o app usa a voz local.
 - **Conteúdo editável:** frases iniciais, sons, situações, missões e canais estão em [data.js](data.js).
 
 ## Problemas comuns

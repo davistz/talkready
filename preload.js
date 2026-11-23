@@ -3,11 +3,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 const on = (channel) => (fn) => ipcRenderer.on(channel, (_e, v) => fn(v));
 
 contextBridge.exposeInMainWorld('api', {
+  platform: 'desktop',
   hasKey: () => ipcRenderer.invoke('key:has'),
   setKey: (key) => ipcRenderer.invoke('key:set', key),
   ai: (kind, payload) => ipcRenderer.invoke('ai', kind, payload),
   speechReady: () => ipcRenderer.invoke('speech:ready'),
   transcribe: (pcm, lang) => ipcRenderer.invoke('speech:transcribe', pcm, lang),
+  assess: (pcm, target) => ipcRenderer.invoke('speech:assess', pcm, target),
   speak: (text, voice, speed) => ipcRenderer.invoke('speech:speak', text, voice, speed),
   onSpeechProgress: on('speech:progress'),
   dailyAudio: (cards) => ipcRenderer.invoke('audio:daily', cards),

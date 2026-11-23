@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "check": "node --check main.js && node --check speech.js && node --check preload.js && node --check app.js && node --check data.js && node --check modules.js && node logic.js"
+    "check": "node --check main.js && node --check speech.js && node --check preload.js && node --check app.js && node --check data.js && node --check modules.js && node --check prompts.js && node --check web-api.js && node --check whisper-score.js && node --check sw.js && node logic.js"
   },
   "devDependencies": {
     "electron": "^39.1.0"

@@ -1,10 +1,5 @@
 /* Identidade TalkReady v1: Grafite #14161B, Névoa #F2F3F5, Cobalto #2B59FF (destaque pontual); Inter Tight + IBM Plex Mono */
-@import url('node_modules/@fontsource/inter-tight/latin-400.css');
-@import url('node_modules/@fontsource/inter-tight/latin-500.css');
-@import url('node_modules/@fontsource/inter-tight/latin-600.css');
-@import url('node_modules/@fontsource/inter-tight/latin-700.css');
-@import url('node_modules/@fontsource/ibm-plex-mono/latin-400.css');
-@import url('node_modules/@fontsource/ibm-plex-mono/latin-500.css');
+@import url('fonts.css');
 :root {
   --bg:#0e1014; --bg2:#14161b; --ink:#f2f3f5; --muted:#9097a3; --dim:#626976;
   --card:rgba(242,243,245,.035); --card-hi:rgba(242,243,245,.06); --line:rgba(242,243,245,.08); --line-hi:rgba(242,243,245,.16);
@@ -300,3 +295,68 @@ h2, .brand strong, .block-card strong, .srs-pt, .srs-en, .drill strong { font-we
 .mod-step summary::before { content:'▸'; color:#7f9cff; } .mod-step[open] summary::before { content:'▾'; }
 .mod-step summary .eyebrow { margin:0; } .mod-step[open] summary { margin-bottom:12px; }
 @media (max-width:1000px) { .module-grid { grid-template-columns:1fr 1fr; } }
+
+/* palavra reconhecida com pouca certeza (avaliação de pronúncia) */
+.w-doubt { color:var(--amber); text-decoration:underline dotted; text-underline-offset:3px; font-weight:700; }
+.doubt-note { color:var(--amber); }
+
+/* ---------- iPhone e telas pequenas: menu vira barra inferior ---------- */
+@media (max-width:760px) {
+  body { background-attachment:scroll; -webkit-tap-highlight-color:transparent; }
+  .app-shell { display:block; }
+  .main-content { padding:0 16px calc(96px + env(safe-area-inset-bottom)); }
+  .topbar { min-height:56px; padding-top:env(safe-area-inset-top); padding-right:46px; gap:8px; }
+  .timer-chip, .streak { font-size:11px; padding:6px 10px; white-space:nowrap; }
+  .timer-chip { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+
+  /* sem backdrop-filter: ele prenderia o botão de ajustes (fixed) dentro da barra */
+  .sidebar { position:fixed; top:auto; bottom:0; left:0; right:0; width:auto; height:auto; z-index:9; flex-direction:row; padding:6px 6px calc(6px + env(safe-area-inset-bottom)); border-right:0; border-top:1px solid var(--line); background:rgba(14,16,20,.97); backdrop-filter:none; }
+  .brand, .sidebar-tip { display:none; }
+  .main-nav { margin:0; display:flex; gap:2px; width:100%; overflow-x:auto; scrollbar-width:none; }
+  .main-nav::-webkit-scrollbar { display:none; }
+  .nav-item { flex:1 1 0; min-width:0; flex-direction:column; gap:3px; padding:7px 0; font-size:10px; font-weight:600; border-radius:10px; letter-spacing:-.2px; }
+  .nav-item span { font-size:17px; width:auto; }
+  .nav-item.active { background:var(--soft); }
+  .voice-status { display:none; }
+  .voice-status:not(.ok) { display:block; position:absolute; left:0; right:0; bottom:100%; margin:0; padding:7px 12px; text-align:center; background:rgba(14,16,20,.95); border-top:1px solid var(--line); }
+  .settings-link { position:fixed; top:calc(env(safe-area-inset-top) + 10px); right:12px; z-index:9; padding:0; width:36px; height:36px; border-radius:50%; font-size:0; background:var(--card-hi); border:1px solid var(--line); }
+  .settings-link::before { content:'⚙'; font-size:17px; color:var(--ink); }
+
+  h1 { font-size:32px; letter-spacing:-1.2px; }
+  .welcome-row { flex-direction:column; align-items:flex-start; gap:14px; padding-top:10px; }
+  .daily-score { border-left:0; padding-left:0; }
+  .page-intro { padding:10px 0 16px; }
+  .card { padding:16px; border-radius:16px; }
+  .block-grid, .two-col, .resource-list, .module-grid, .grid-2 { grid-template-columns:1fr; }
+  .scenario-grid, .stats-grid { grid-template-columns:1fr 1fr; }
+  .form-row { flex-wrap:wrap; }
+  .form-row > input { flex:1 1 100%; }
+  .form-row.end > button { flex:1; }
+
+  /* 16px evita o zoom automático do Safari ao tocar num campo */
+  input, textarea, select { font-size:16px; }
+  button, .chip { min-height:40px; }
+  .timer-chip, .settings-link { min-height:0; }
+
+  .srs-card { padding:26px 16px; }
+  .srs-pt { font-size:24px; }
+  .srs-en { font-size:21px; }
+  .grades { grid-template-columns:1fr 1fr; }
+  .drill { flex-wrap:wrap; }
+  .drill strong { font-size:32px; }
+
+  .chat-head { flex-wrap:wrap; gap:10px; }
+  .chat-head strong { flex:1 1 100%; }
+  .chat-log { height:52vh; padding:14px; }
+  .msg { max-width:90%; }
+  .chat-input { flex-wrap:wrap; }
+  .chat-input textarea { flex:1 1 100%; order:-1; }
+  .chat-input .primary-button { margin-left:auto; }
+
+  .modal-backdrop { place-items:end center; }
+  .modal { width:100%; max-height:88vh; overflow-y:auto; border-radius:20px 20px 0 0; padding:22px 18px calc(22px + env(safe-area-inset-bottom)); }
+  .toast { bottom:calc(84px + env(safe-area-inset-bottom)); max-width:92vw; }
+}
+@media (max-width:760px) and (prefers-reduced-motion:reduce) {
+  .hero-button::after, .active-section { animation:none; }
+}

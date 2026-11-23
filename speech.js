@@ -41,6 +41,13 @@ async function transcribe(pcm16k, language = 'english') {
   return serial(async () => (await asr(pcm16k, { language, task: 'transcribe', chunk_length_s: 30, stride_length_s: 5 })).text.trim());
 }
 
+// Confiança em cada palavra da frase alvo (detalhes em whisper-score.js).
+async function assess(pcm16k, target) {
+  await ready;
+  const { Tensor } = require('@huggingface/transformers');
+  return serial(() => require('./whisper-score').assess({ model: asr.model, processor: asr.processor, tokenizer: asr.tokenizer, Tensor }, pcm16k, target));
+}
+
 const RATE = 24000; // saída do Kokoro
 const toInt16 = (f32) => Int16Array.from(f32, (x) => Math.max(-1, Math.min(1, x)) * 32767);
 const synth = async (text, voice, speed) => { await ready; return serial(async () => toInt16((await tts.generate(text, { voice, speed })).audio)); };
@@ -110,4 +117,4 @@ async function exportDailyAudio(cards, onProgress) {
   return out;
 }
 
-module.exports = { load, whenReady: () => ready, transcribe, speak, exportDailyAudio };
+module.exports = { load, whenReady: () => ready, transcribe, assess, speak, exportDailyAudio };
