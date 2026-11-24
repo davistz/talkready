@@ -19,7 +19,7 @@ const PHASES = [
 const KIT = ['Sorry, can you say that again?', 'Can you speak more slowly, please?', 'What does that mean?', 'How do you say "" in English?', 'Let me think...'];
 
 // ---------- estado ----------
-const fresh = () => ({ v: 3, start: dayKey(), level: 'A1', goals: { weekday: 60, weekend: 60 }, newPerDay: 10, days: {}, cards: [], introduced: {}, convs: 0, missions: {}, pron: {}, quiz: { ok: 0, n: 0 }, xrays: [], soundPick: null, reminder: null, modules: {} });
+const fresh = () => ({ v: 3, start: dayKey(), level: 'A1', goals: { weekday: 60, weekend: 60 }, newPerDay: 10, days: {}, cards: [], introduced: {}, convs: 0, missions: {}, pron: {}, quiz: { ok: 0, n: 0 }, xrays: [], soundPick: null, reminder: null, modules: {}, ph: {}, phDays: {} });
 let state;
 try { state = { ...fresh(), ...JSON.parse(localStorage.getItem('talkready-v3')) }; } catch { state = fresh(); }
 if (!state.cards.length) state.cards = STARTER_DECK.map(([en, pt, tag], i) => newCard(i + 1, en, pt, tag));
@@ -219,8 +219,13 @@ function refine(cmp, pcm, target, done) {
 document.addEventListener('keydown', (e) => {
   const typing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
   if (typing || $('#settings').classList.contains('open')) return;
+  if (focus) {
+    if (e.key === 'Escape') closeFocus();
+    if (e.key === 'ArrowRight') focusGo(1);
+    if (e.key === 'ArrowLeft') focusGo(-1);
+  }
   if (e.code === 'Space' && !e.repeat) {
-    const m = [...document.querySelectorAll('.page-section.active-section .mic.primary')].find((x) => x.offsetParent);
+    const m = focus ? $('#focusMic') : [...document.querySelectorAll('.page-section.active-section .mic.primary')].find((x) => x.offsetParent);
     if (m) { e.preventDefault(); document.activeElement.blur(); m.click(); }
   }
   if (current === 'revisar') {
@@ -231,11 +236,12 @@ document.addEventListener('keydown', (e) => {
 
 // ---------- navegação e tempo ----------
 let current = 'hoje', listening = false;
+const rerender = () => ({ hoje: renderHoje, modulos: renderModulos, revisar: renderSrs, pronuncia: renderSound, conversar: renderConversar, ouvir: renderOuvir, progresso: renderProgresso })[current]();
 function show(id) {
   current = id; stopAudio(); cancelRec();
   document.querySelectorAll('.page-section').forEach((s) => s.classList.toggle('active-section', s.id === id));
   document.querySelectorAll('.nav-item').forEach((b) => b.classList.toggle('active', b.dataset.section === id));
-  ({ hoje: renderHoje, modulos: renderModulos, revisar: renderSrs, pronuncia: renderSound, conversar: renderConversar, ouvir: renderOuvir, progresso: renderProgresso })[id]();
+  rerender();
   window.scrollTo({ top: 0 });
 }
 document.querySelectorAll('.nav-item').forEach((b) => b.addEventListener('click', () => show(b.dataset.section)));
@@ -271,11 +277,12 @@ async function renderHoje() {
   $('#todayBar').style.width = `${Math.min(100, done / goal * 100)}%`;
   $('#blockGrid').innerHTML = BLOCKS.map((b, i) => {
     const m = Math.floor((t[b.id] || 0) / 60), g = goalOf(b), ok = m >= g;
-    return `<button class="block-card ${ok ? 'done' : ''}" data-go="${b.id}"><span class="block-n">${ok ? '✓' : i + 1}</span><span><strong>${b.title}</strong><small>${b.desc}</small></span><span class="block-min">${m}/${g} min</span><span class="bar"><span style="width:${Math.min(100, m / g * 100)}%"></span></span></button>`;
+    const extra = b.id === 'pronuncia' && spokenToday() ? ` · ${spokenToday()} frases faladas hoje` : '';
+    return `<button class="block-card ${ok ? 'done' : ''}" data-go="${b.id}"><span class="block-n">${ok ? '✓' : i + 1}</span><span><strong>${b.title}</strong><small>${b.desc}${extra}</small></span><span class="block-min">${m}/${g} min</span><span class="bar"><span style="width:${Math.min(100, m / g * 100)}%"></span></span></button>`;
   }).join('');
   document.querySelectorAll('[data-go]').forEach((b) => { b.onclick = () => show(b.dataset.go); });
   const nb = nextBlock();
-  $('#guided').textContent = nb ? (done ? `▶ Continuar: ${nb.title}` : '▶ Começar treino guiado') : '✓ Treino de hoje completo. Quer mais? Converse!';
+  $('#guided').textContent = nb ? (done ? `▶︎ Continuar: ${nb.title}` : '▶︎ Começar treino guiado') : '✓ Treino de hoje completo. Quer mais? Converse!';
   $('#guided').onclick = () => show(nb ? nb.id : 'conversar');
   const wm = MODULES[(weekNumber() - 1) % MODULES.length];
   $('#moduleCta').innerHTML = `<span class="eyebrow">MÓDULO DA SEMANA ${state.modules[wm.id] ? '· CONCLUÍDO ✓' : ''}</span><strong>${wm.id}. ${esc(wm.title)}</strong><small>${esc(wm.goal)}</small><span class="go">Abrir →</span>`;
@@ -357,7 +364,7 @@ function renderSrs() {
     ${flipped ? `
       <p class="srs-en">${esc(c.en)}</p>
       ${srsHeard ? `<p class="result">${resultHtml(srsHeard.r, srsHeard.text)}</p>` : ''}
-      <div class="row center"><button class="round-button" id="srsPlay" title="Ouvir">▶</button><button class="outline-button" id="srsSlow">🐢 Devagar</button>${srsHeard ? '<button class="outline-button" id="srsMe">▶ Você</button>' : ''}</div>
+      <div class="row center"><button class="round-button" id="srsPlay" title="Ouvir">▶︎</button><button class="outline-button" id="srsSlow">🐢 Devagar</button>${srsHeard ? '<button class="outline-button" id="srsMe">▶︎ Você</button>' : ''}</div>
       <div class="grades">${['Errei', 'Difícil', 'Bom', 'Fácil'].map((g, i) => `<button data-g="${i}" class="g${i} ${i === suggested ? 'suggested' : ''}">${g}<small>${['volta hoje', 'pouco tempo', 'normal', 'bem depois'][i]}</small></button>`).join('')}</div>`
     : `<div class="row center"><button class="mic primary big" id="srsMic">🎤 Falar</button><button class="outline-button" id="srsFlip">Mostrar resposta</button></div>`}`;
   if (flipped) {
@@ -406,39 +413,181 @@ $('#genDeck').onclick = async () => {
   btn.disabled = false; btn.textContent = 'Gerar 10';
 };
 
+// ---------- prática de frases: fica salva por frase e por dia ----------
+const spokenToday = () => Object.keys(state.phDays[dayKey()] || {}).length;
+const todayScore = (text) => (state.phDays[dayKey()] || {})[text];
+function recordPractice(text, cmp, heard) {
+  const k = dayKey(), rec = state.ph[text] ||= { best: 0, n: 0 };
+  Object.assign(rec, { n: rec.n + 1, last: cmp.score, best: Math.max(rec.best, cmp.score), heard, day: k, probs: null });
+  const d = state.phDays[k] ||= {};
+  d[text] = Math.max(d[text] ?? 0, cmp.score);
+  save();
+}
+// Resultado de hoje (se houver) para mostrar de novo ao voltar na tela.
+function lastResult(text) {
+  const rec = state.ph[text];
+  if (!rec || rec.day !== dayKey() || !rec.heard) return null;
+  const cmp = compareWords(text, rec.heard);
+  return { cmp: rec.probs ? { ...cmp, probs: rec.probs } : cmp, heard: rec.heard };
+}
+function statusChip(text) {
+  const t = todayScore(text), rec = state.ph[text];
+  if (t !== undefined) return `<span class="ph-status ${scoreClass(t)}">✓ hoje ${t}%</span>`;
+  return rec ? `<span class="ph-status">melhor ${rec.best}%</span>` : '';
+}
+// Grava a fala, compara, salva e devolve o resultado (com a confiança por palavra chegando depois).
+function practice(btn, p, onResult) {
+  micToggle(btn, (heard, r) => {
+    p.blob = r.blob; p.heard = heard;
+    const cmp = compareWords(p.text, heard);
+    recordPractice(p.text, cmp, heard);
+    onResult(cmp, heard);
+    refine(cmp, r.pcm, p.text, (c) => {
+      const rec = state.ph[p.text];
+      if (rec?.heard === heard) { rec.probs = c.probs; save(); }
+      if (p.heard === heard) onResult(c, heard, true);
+    });
+  });
+}
+const resultBlock = (p, cmp, heard) => `<p class="result">${resultHtml(cmp, heard)}</p><div class="row">${p.blob ? '<button class="outline-button" data-act="me">▶︎ Você</button>' : ''}<button class="outline-button" data-act="play">▶︎ Original</button>${cmp.score < 100 ? '<button class="outline-button" data-act="why">🤔 Por que errei?</button>' : '<span class="ok">Perfeito! 🎯</span>'}</div><p class="why muted"></p>`;
+
 // ---------- cartão de frase reutilizável (ouvir, devagar, gravar, comparar, por quê) ----------
 const PH = [];
 function phraseCard(text, { voice = 'af_heart', pt = '', label = '', topic = '', src = '' } = {}) {
-  const i = PH.push({ text, voice, topic, src }) - 1;
-  return `<div class="card phrase" data-ph="${i}">
-    <div class="row">${label ? `<span class="speaker">${esc(label)}</span>` : ''}<p class="ph-text">${esc(text)}</p>
-      <button class="round-button" data-act="play" title="Ouvir">▶</button><button class="outline-button" data-act="slow" title="Devagar">🐢</button><button class="mic" data-act="rec" title="Gravar">🎤</button></div>
+  const last = lastResult(text);
+  const i = PH.push({ text, voice, topic, src, pt, label, heard: last?.heard }) - 1;
+  return `<div class="card phrase ${todayScore(text) !== undefined ? 'practiced' : ''}" data-ph="${i}">
+    <div class="row">${label ? `<span class="speaker">${esc(label)}</span>` : ''}<p class="ph-text">${esc(text)}</p><span class="ph-chip">${statusChip(text)}</span>
+      <button class="round-button" data-act="play" title="Ouvir">▶︎</button><button class="outline-button" data-act="slow" title="Devagar">🐢</button><button class="mic" data-act="rec" title="Gravar">🎤</button></div>
     ${pt ? `<p class="ph-pt muted" hidden>${esc(pt)}</p>` : ''}
-    <div class="ph-result"></div></div>`;
+    <div class="ph-result">${last ? resultBlock(PH[i], last.cmp, last.heard) : ''}</div></div>`;
+}
+const playPhrase = (p, rate = 1) => (p.src ? (stopAudio(), playFile(p.src, p.text, { voice: p.voice, rate })) : say(p.text, { voice: p.voice, rate }));
+async function explainWhy(btn, p, out) {
+  btn.disabled = true; btn.textContent = 'Pensando…';
+  try { const { dica } = await api.ai('why', { target: p.text, heard: p.heard, topic: p.topic || 'pronúncia geral' }); out.textContent = `💡 ${dica}`; btn.remove(); } catch (err) { toast(errMsg(err)); btn.disabled = false; btn.textContent = '🤔 Por que errei?'; }
 }
 document.addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-act]'); if (!btn) return;
+  const btn = e.target.closest('[data-act]'); if (!btn || btn.closest('#focus')) return;
   const card = btn.closest('[data-ph]'), p = PH[card.dataset.ph], res = card.querySelector('.ph-result');
   const act = btn.dataset.act;
-  if (act === 'play' || act === 'slow') {
-    const rate = act === 'slow' ? 0.75 : 1;
-    if (p.src) { stopAudio(); playFile(p.src, p.text, { voice: p.voice, rate }); } else say(p.text, { voice: p.voice, rate });
-  }
+  if (act === 'play' || act === 'slow') playPhrase(p, act === 'slow' ? 0.75 : 1);
   if (act === 'pt') card.querySelector('.ph-pt').hidden = false;
   if (act === 'me') playBlob(p.blob);
   if (act === 'rec') {
-    micToggle(btn, (heard, r) => {
-      p.blob = r.blob; p.heard = heard;
-      const cmp = compareWords(p.text, heard);
-      res.innerHTML = `<p class="result">${resultHtml(cmp, heard)}</p><div class="row"><button class="outline-button" data-act="me">▶ Você</button><button class="outline-button" data-act="play">▶ Original</button>${cmp.score < 100 ? '<button class="outline-button" data-act="why">🤔 Por que errei?</button>' : '<span class="ok">Perfeito! 🎯</span>'}</div><p class="why muted"></p>`;
-      refine(cmp, r.pcm, p.text, (c) => { const el = res.querySelector('.result'); if (p.heard === heard && el) el.innerHTML = resultHtml(c, heard); });
+    practice(btn, p, (cmp, heard, refined) => {
+      if (refined) { const el = res.querySelector('.result'); if (el) el.innerHTML = resultHtml(cmp, heard); return; }
+      res.innerHTML = resultBlock(p, cmp, heard);
+      card.classList.add('practiced'); card.querySelector('.ph-chip').innerHTML = statusChip(p.text);
+      updateCounts();
     });
   }
-  if (act === 'why') {
-    btn.disabled = true; btn.textContent = 'Pensando…';
-    try { const { dica } = await api.ai('why', { target: p.text, heard: p.heard, topic: p.topic || 'pronúncia geral' }); res.querySelector('.why').textContent = `💡 ${dica}`; btn.remove(); } catch (err) { toast(errMsg(err)); btn.disabled = false; btn.textContent = '🤔 Por que errei?'; }
-  }
+  if (act === 'why') explainWhy(btn, p, res.querySelector('.why'));
 });
+// Contadores "x/y hoje" da tela aberta, sem redesenhar a página.
+function updateCounts() {
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const texts = JSON.parse(el.dataset.count), d = state.phDays[dayKey()] || {};
+    el.textContent = `${texts.filter((t) => t in d).length}/${texts.length} hoje`;
+  });
+}
+const countTag = (texts) => `<span class="count-tag" data-count='${esc(JSON.stringify(texts))}'>${texts.filter((t) => todayScore(t) !== undefined).length}/${texts.length} hoje</span>`;
+
+// ---------- TREINO EM FOCO: uma frase por vez, tela cheia, feito para o celular ----------
+let focus = null, focusTimer = null;
+function openFocus(items, title) {
+  stopAudio(); cancelRec();
+  const first = items.findIndex((it) => todayScore(it.text) === undefined);
+  focus = { items: items.map((it) => ({ ...it, heard: lastResult(it.text)?.heard })), title, i: first < 0 ? 0 : first };
+  $('#focus').hidden = false; document.body.classList.add('focus-open');
+  renderFocus(true);
+}
+function closeFocus() {
+  clearTimeout(focusTimer); stopAudio(); cancelRec();
+  focus = null; $('#focus').hidden = true; document.body.classList.remove('focus-open');
+  rerender();
+}
+function focusGo(step) {
+  if (!focus) return;
+  clearTimeout(focusTimer); cancelRec();
+  const n = focus.i + step;
+  if (n < 0 || n > focus.items.length) return;
+  focus.i = n; renderFocus(n < focus.items.length);
+}
+function renderFocus(autoplay) {
+  const f = focus, el = $('#focus'), d = state.phDays[dayKey()] || {};
+  const doneN = f.items.filter((x) => x.text in d).length;
+  const dots = `<div class="focus-dots">${f.items.map((x, j) => `<button data-j="${j}" class="${j === f.i ? 'on' : ''} ${x.text in d ? scoreClass(d[x.text]) : ''}" aria-label="Frase ${j + 1}"></button>`).join('')}</div>`;
+  const top = `<div class="focus-top"><button class="focus-x" id="focusClose" aria-label="Fechar">✕</button><span class="focus-title">${esc(f.title)}</span><span class="focus-count">${Math.min(f.i + 1, f.items.length)}/${f.items.length}</span></div>`;
+
+  if (f.i >= f.items.length) { // fim
+    const scores = f.items.map((x) => d[x.text]).filter((x) => x !== undefined);
+    const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+    const weak = f.items.filter((x) => (d[x.text] ?? 0) < 80);
+    const missing = f.items.filter((x) => !(x.text in d)).length, low = weak.length - missing;
+    const note = !weak.length ? 'Todas acima de 80%. Pode seguir para o próximo bloco.'
+      : [missing && `${missing === 1 ? 'Faltou 1 frase' : `Faltaram ${missing} frases`}`, low && `${low === 1 ? '1 ficou' : `${low} ficaram`} abaixo de 80%`].filter(Boolean).join(' e ') + '. Mais uma rodada fixa o som.';
+    el.innerHTML = `${top}${dots}<div class="focus-body focus-end">
+      <p class="focus-big ${scoreClass(avg)}">${avg}%</p><p class="focus-text">${doneN} de ${f.items.length} frases faladas hoje</p>
+      <p class="muted">${note}</p></div>
+      <div class="focus-nav">${weak.length ? `<button class="primary-button" id="focusWeak">${missing ? 'Fazer as que faltam' : 'Refazer as mais fracas'}</button>` : ''}<button class="outline-button" id="focusDone">Fechar</button></div>`;
+    $('#focusClose').onclick = $('#focusDone').onclick = closeFocus;
+    if (weak.length) $('#focusWeak').onclick = () => openFocus(weak, f.title);
+    wireDots(); return;
+  }
+
+  const it = f.items[f.i], last = lastResult(it.text);
+  el.innerHTML = `${top}${dots}
+    <div class="focus-body" id="focusBody">
+      ${it.label ? `<p class="focus-label">${esc(it.label)}</p>` : ''}
+      <p class="focus-text">${esc(it.text)}</p>
+      ${it.pt ? `<button class="focus-pt" id="focusPt">Ver em português</button>` : ''}
+      <div class="focus-result" id="focusResult">${last ? focusResult(it, last.cmp, last.heard) : '<p class="muted small">Ouça, repita junto 2 ou 3 vezes e depois grave.</p>'}</div>
+    </div>
+    <div class="focus-controls">
+      <button class="focus-side" id="focusSlow"><b>🐢</b><small>Devagar</small></button>
+      <button class="mic primary focus-mic" id="focusMic" aria-label="Gravar">🎤</button>
+      <button class="focus-side" id="focusPlay"><b>▶︎</b><small>Ouvir</small></button>
+    </div>
+    <div class="focus-nav"><button class="outline-button" id="focusPrev" ${f.i === 0 ? 'disabled' : ''}>Anterior</button><span class="muted small">${doneN}/${f.items.length} feitas hoje</span><button class="primary-button" id="focusNext">${f.i === f.items.length - 1 ? 'Terminar' : 'Próxima'}</button></div>`;
+
+  $('#focusClose').onclick = closeFocus;
+  $('#focusPlay').onclick = () => { clearTimeout(focusTimer); playPhrase(it); };
+  $('#focusSlow').onclick = () => { clearTimeout(focusTimer); playPhrase(it, 0.75); };
+  $('#focusPrev').onclick = () => focusGo(-1);
+  $('#focusNext').onclick = () => focusGo(1);
+  if (it.pt) $('#focusPt').onclick = (e) => { e.target.textContent = it.pt; e.target.classList.add('open'); };
+  $('#focusMic').onclick = () => { clearTimeout(focusTimer); practice($('#focusMic'), it, (cmp, heard, refined) => {
+    if (!focus || focus.items[focus.i] !== it) return;
+    if (refined) { const r = $('#focusResult .result'); if (r) r.innerHTML = resultHtml(cmp, heard); return; }
+    renderFocus(false);
+    const good = cmp.score >= 90;
+    if (good && focus.i < focus.items.length - 1) { // acertou: segue sozinho para a próxima
+      $('#focusNext').classList.add('auto');
+      focusTimer = setTimeout(() => focusGo(1), 1800);
+    }
+  }); };
+  wireFocusResult(it);
+  wireDots();
+
+  // deslizar para os lados troca de frase
+  const body = $('#focusBody'); let x0 = null, y0 = null;
+  body.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  body.addEventListener('touchend', (e) => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+    if (Math.abs(dx) > 60 && Math.abs(dy) < 50) focusGo(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  if (autoplay) playPhrase(it);
+}
+const focusResult = (it, cmp, heard) => `<p class="focus-big ${scoreClass(cmp.score)}">${cmp.score}%</p><p class="result">${resultHtml(cmp, heard)}</p>
+  <div class="row center">${it.blob ? '<button class="outline-button" id="focusMe">▶︎ Você</button>' : ''}${cmp.score < 100 ? '<button class="outline-button" id="focusWhy">🤔 Por que errei?</button>' : ''}</div><p class="why muted" id="focusWhyOut"></p>`;
+function wireFocusResult(it) {
+  if ($('#focusMe')) $('#focusMe').onclick = () => { clearTimeout(focusTimer); playBlob(it.blob); };
+  if ($('#focusWhy')) $('#focusWhy').onclick = (e) => { clearTimeout(focusTimer); explainWhy(e.currentTarget, it, $('#focusWhyOut')); };
+}
+function wireDots() { $('#focus').querySelectorAll('[data-j]').forEach((b) => { b.onclick = () => focusGo(+b.dataset.j - focus.i); }); }
 
 // ---------- PRONÚNCIA ----------
 let pairTarget = null;
@@ -449,7 +598,9 @@ function renderSound() {
   $('#soundTip').textContent = s.tip;
   $('#soundChips').innerHTML = SOUNDS.map((x, i) => `<button class="chip ${i === idx ? 'active' : ''}" data-s="${i}">${i === weekSound() ? '★ ' : ''}${esc(x.title)}${state.pron[i] ? ` · ${Math.round(state.pron[i].ok / state.pron[i].n * 100)}%` : ''}</button>`).join('');
   document.querySelectorAll('[data-s]').forEach((b) => { b.onclick = () => { state.soundPick = +b.dataset.s === weekSound() ? null : +b.dataset.s; save(); renderSound(); }; });
-  $('#soundPhrases').innerHTML = `<p class="eyebrow">FRASES PARA SHADOWING</p>` + s.phrases.map((p) => phraseCard(p, { topic: s.title })).join('');
+  $('#soundPhrases').innerHTML = `<div class="section-head"><p class="eyebrow">FRASES PARA SHADOWING</p>${countTag(s.phrases)}</div>
+    <button class="primary-button focus-start" id="focusSound">▶︎ Treinar em foco, uma por vez</button>` + s.phrases.map((p) => phraseCard(p, { topic: s.title })).join('');
+  $('#focusSound').onclick = () => openFocus(s.phrases.map((text) => ({ text, topic: s.title })), s.title);
   $('#pairsCard').hidden = !s.pairs;
   if (s.pairs) newPair(idx);
 }
@@ -495,8 +646,8 @@ function renderChat() {
     : `<div class="msg assistant">
         <div class="msg-text ${$('#hideText').checked && !t.shown ? 'blur' : ''}" data-reveal="${i}" title="Clique para ver o texto">${esc(t.reply)}</div>
         ${t.showPt ? `<div class="msg-pt">${esc(t.pt)}</div>` : ''}
-        <div class="msg-tools"><button data-say="${i}">▶</button><button data-slow="${i}">🐢</button><button data-pt="${i}">PT</button>${i === last && t.ideas?.length ? `<button data-ideas="${i}">💡 ideias</button>` : ''}</div>
-        ${t.try_this ? `<div class="try">Tente dizer: <b>${esc(t.try_this)}</b> <button data-try="${i}">▶</button></div>` : ''}
+        <div class="msg-tools"><button data-say="${i}">▶︎</button><button data-slow="${i}">🐢</button><button data-pt="${i}">PT</button>${i === last && t.ideas?.length ? `<button data-ideas="${i}">💡 ideias</button>` : ''}</div>
+        ${t.try_this ? `<div class="try">Tente dizer: <b>${esc(t.try_this)}</b> <button data-try="${i}">▶︎</button></div>` : ''}
         ${i === last && t.showIdeas ? `<div class="ideas">${t.ideas.map((x) => `<button data-idea="${esc(x)}">${esc(x)}</button>`).join('')}<small class="muted">Ouça e diga com a sua voz.</small></div>` : ''}
       </div>`).join('') + (chat.busy ? `<div class="msg assistant typing">${esc(chat.sc.partner)} está pensando…</div>` : '');
   const log = $('#chatLog');
@@ -552,8 +703,8 @@ $('#endChat').onclick = async () => {
     const { resumo, erros, pronuncia } = await api.ai('review', { messages: chat.messages, level: state.level });
     state.convs++; save();
     r.innerHTML = `<p class="eyebrow">CORREÇÃO</p><p class="lead-dark">${esc(resumo)}</p>
-      ${erros.map((e, i) => `<div class="fix"><p class="said">✗ ${esc(e.voce_disse)}</p><p class="right">✓ ${esc(e.natural)} <button class="mini-play" data-fix-play="${i}">▶</button></p><p class="muted">${esc(e.explicacao)}</p></div>`).join('')}
-      ${pronuncia.length ? `<p class="eyebrow">PRONÚNCIA · a máquina entendeu errado</p>${pronuncia.map((p, i) => `<div class="fix"><p>Ouviu <span class="said">“${esc(p.ouvido)}”</span>, você quis dizer <span class="right">“${esc(p.provavel)}”</span> <button class="mini-play" data-pron-play="${i}">▶</button></p><p class="muted">${esc(p.dica)}</p></div>`).join('')}` : ''}
+      ${erros.map((e, i) => `<div class="fix"><p class="said">✗ ${esc(e.voce_disse)}</p><p class="right">✓ ${esc(e.natural)} <button class="mini-play" data-fix-play="${i}">▶︎</button></p><p class="muted">${esc(e.explicacao)}</p></div>`).join('')}
+      ${pronuncia.length ? `<p class="eyebrow">PRONÚNCIA · a máquina entendeu errado</p>${pronuncia.map((p, i) => `<div class="fix"><p>Ouviu <span class="said">“${esc(p.ouvido)}”</span>, você quis dizer <span class="right">“${esc(p.provavel)}”</span> <button class="mini-play" data-pron-play="${i}">▶︎</button></p><p class="muted">${esc(p.dica)}</p></div>`).join('')}` : ''}
       <div class="row">${erros.length ? '<button class="primary-button" id="addFixes">+ Transformar erros em frases de revisão</button>' : ''}<button class="outline-button" id="newChat">Nova conversa</button></div>`;
     r.querySelectorAll('[data-fix-play]').forEach((b) => { b.onclick = () => say(erros[b.dataset.fixPlay].natural); });
     r.querySelectorAll('[data-pron-play]').forEach((b) => { b.onclick = () => say(pronuncia[b.dataset.pronPlay].provavel); });
@@ -601,16 +752,17 @@ function renderEpisode() {
   el.innerHTML = `<div class="card episode">
     <p class="eyebrow">EPISÓDIO · ${data.lines.length} falas</p><h2>${esc(data.title)}</h2>
     <div class="steps">${['Ouça sem ler', 'Responda', 'Confira e repita'].map((s, i) => `<span class="${step === i + 1 ? 'on' : step > i + 1 ? 'done' : ''}">${i + 1}. ${s}</span>`).join('')}</div>
-    <div class="row"><button class="primary-button" id="epPlay">▶ Tocar o diálogo</button><button class="outline-button" id="epStop">⏸ Parar</button>
+    <div class="row"><button class="primary-button" id="epPlay">▶︎ Tocar o diálogo</button><button class="outline-button" id="epStop">⏸︎ Parar</button>
       <label class="toggle">Velocidade <select id="epRate">${[0.75, 0.9, 1].map((r) => `<option ${r === ep.rate ? 'selected' : ''}>${r}</option>`).join('')}</select></label>
       ${step === 1 ? '<button class="outline-button" id="epNext">Já ouvi 2× → perguntas</button>' : ''}</div>
     ${step >= 2 ? `<div class="quiz">${data.questions.map((q, qi) => `<div class="q"><p>${esc(q.q)}</p>${q.options.map((o, oi) => {
       const a = ep.answers[qi], cls = a === undefined ? '' : oi === q.answer ? 'right-opt' : oi === a ? 'wrong-opt' : '';
       return `<button class="opt ${cls}" data-q="${qi}" data-o="${oi}" ${a !== undefined ? 'disabled' : ''}>${esc(o)}</button>`; }).join('')}</div>`).join('')}</div>` : ''}
-    ${step >= 3 ? `<p class="eyebrow">TRANSCRIÇÃO · ${esc(data.title_pt)}</p>${data.lines.map((l) => phraseCard(l.text, { voice: ep.voices[l.speaker], pt: l.pt, label: l.speaker })).join('')}
+    ${step >= 3 ? `<p class="eyebrow">TRANSCRIÇÃO · ${esc(data.title_pt)}</p><button class="primary-button focus-start" id="epFocus">▶︎ Repetir as falas em foco</button>${data.lines.map((l) => phraseCard(l.text, { voice: ep.voices[l.speaker], pt: l.pt, label: l.speaker })).join('')}
       <div class="row"><button class="primary-button" id="epSave">+ Salvar ${data.phrases.length} frases úteis</button><span class="muted small">${data.phrases.map((p) => esc(p.en)).join(' · ')}</span></div>` : ''}
   </div>`;
   $('#epPlay').onclick = playEpisode; $('#epStop').onclick = stopAudio;
+  if (step >= 3) $('#epFocus').onclick = () => openFocus(data.lines.map((l) => ({ text: l.text, pt: l.pt, voice: ep.voices[l.speaker], label: l.speaker })), data.title);
   $('#epRate').onchange = (e) => { ep.rate = +e.target.value; };
   if (step === 1) $('#epNext').onclick = () => { ep.step = 2; renderEpisode(); };
   el.querySelectorAll('[data-q]').forEach((b) => { b.onclick = () => {
@@ -628,13 +780,18 @@ let openModule = null, modRate = 1;
 const MOD_VOICE = { A: 'af_heart', B: 'bm_george' }, MOD_NAME = { A: 'Sarah', B: 'George' };
 const MOD_EXT = player.canPlayType('audio/ogg; codecs=opus') ? 'ogg' : 'm4a'; // Safari do iPhone usa as cópias .m4a
 const modSrc = (m, kind, i) => `modulos/m${String(m.id).padStart(2, '0')}-${kind}${String(i + 1).padStart(2, '0')}.${MOD_EXT}`;
+const modTexts = (m) => [...m.lines.map(([, en]) => en), ...m.phrases.map(([en]) => en)];
+function modBar(m) {
+  const t = modTexts(m), n = t.filter((x) => state.ph[x]).length;
+  return n ? `<span class="mod-prog"><span class="bar"><span style="width:${n / t.length * 100}%"></span></span><small>${n}/${t.length} frases praticadas</small></span>` : '';
+}
 function renderModulos() {
   const el = $('#modulos'), wk = ((weekNumber() - 1) % MODULES.length) + 1;
   if (!openModule) {
     const done = MODULES.filter((m) => state.modules[m.id]).length;
     el.innerHTML = `<div class="page-intro"><p class="eyebrow">CURSO · ${done}/${MODULES.length} CONCLUÍDOS</p><h1>Módulos<span>.</span></h1><p>Um módulo por semana. Cada um tem um diálogo gravado com vozes nativas (Sarah, americana, e George, britânico), frases-chave, o som da semana e uma conversa para praticar.</p></div>
       <div class="module-grid">${MODULES.map((m) => `<button class="module-card ${state.modules[m.id] ? 'done' : ''} ${m.id === wk ? 'now' : ''}" data-mod="${m.id}">
-        <span class="mod-n">${state.modules[m.id] ? '✓' : String(m.id).padStart(2, '0')}</span><strong>${esc(m.title)}</strong><small>${esc(m.goal)}</small>${m.id === wk ? '<span class="tag">Semana atual</span>' : ''}</button>`).join('')}</div>`;
+        <span class="mod-n">${state.modules[m.id] ? '✓' : String(m.id).padStart(2, '0')}</span><strong>${esc(m.title)}</strong><small>${esc(m.goal)}</small>${modBar(m)}${m.id === wk ? '<span class="tag">Semana atual</span>' : ''}</button>`).join('')}</div>`;
     el.querySelectorAll('[data-mod]').forEach((b) => { b.onclick = () => { openModule = +b.dataset.mod; renderModulos(); window.scrollTo({ top: 0 }); }; });
     return;
   }
@@ -642,13 +799,14 @@ function renderModulos() {
   el.innerHTML = `<button class="outline-button back" id="modBack">← Módulos</button>
     <div class="page-intro"><p class="eyebrow">MÓDULO ${String(m.id).padStart(2, '0')}${state.modules[m.id] ? ' · CONCLUÍDO ✓' : ''}</p><h1>${esc(m.title)}<span>.</span></h1><p>${esc(m.goal)}</p></div>
     <div class="card"><p class="eyebrow">1 · OUÇA SEM LER (2×)</p>
-      <div class="row"><button class="primary-button" id="modPlay">▶ Tocar o diálogo</button><button class="outline-button" id="modStop">⏸ Parar</button>
+      <div class="row"><button class="primary-button" id="modPlay">▶︎ Tocar o diálogo</button><button class="outline-button" id="modStop">⏸︎ Parar</button>
       <label class="toggle">Velocidade <select id="modRate">${[0.75, 0.9, 1].map((r) => `<option ${r === modRate ? 'selected' : ''}>${r}</option>`).join('')}</select></label>
       <span class="muted small" id="modNow"></span></div></div>
-    <details class="card mod-step"><summary><span class="eyebrow">2 · LEIA E REPITA</span> <span class="muted small">George faz o seu papel: grave as falas dele 🎤</span></summary>
+    <button class="primary-button hero-button focus-start" id="modFocus">▶︎ Treinar o módulo em foco · ${countTag(modTexts(m))}</button>
+    <details class="card mod-step"><summary><span class="eyebrow">2 · LEIA E REPITA</span> ${countTag(m.lines.map(([, en]) => en))} <span class="muted small">George faz o seu papel: grave as falas dele 🎤</span></summary>
       ${m.lines.map(([who, en, pt], i) => phraseCard(en, { voice: MOD_VOICE[who], pt, label: MOD_NAME[who][0], src: modSrc(m, 'd', i), topic: s.title })).join('')}
       <p class="muted small">Clique no texto de uma fala para ver a tradução.</p></details>
-    <div class="card"><p class="eyebrow">3 · FRASES-CHAVE</p>${m.phrases.map(([en, pt], i) => phraseCard(en, { pt, src: modSrc(m, 'f', i), topic: s.title })).join('')}
+    <div class="card"><div class="section-head"><p class="eyebrow">3 · FRASES-CHAVE</p>${countTag(m.phrases.map(([en]) => en))}</div>${m.phrases.map(([en, pt], i) => phraseCard(en, { pt, src: modSrc(m, 'f', i), topic: s.title })).join('')}
       <button class="primary-button" id="modAdd">+ Levar as ${m.phrases.length} frases para a revisão</button></div>
     <div class="card"><p class="eyebrow">4 · PRATIQUE</p><div class="row">
       <button class="outline-button" id="modSound">◉ Treinar o som: ${esc(s.title)}</button>
@@ -656,6 +814,10 @@ function renderModulos() {
     <button class="primary-button hero-button" id="modDone">${state.modules[m.id] ? '✓ Módulo concluído (clique para desmarcar)' : '✓ Concluir módulo'}</button>`;
   el.querySelectorAll('.mod-step .ph-text, .card .ph-text').forEach((p) => { p.dataset.act = 'pt'; p.title = 'Clique para ver em português'; });
   $('#modBack').onclick = () => { stopAudio(); openModule = null; renderModulos(); };
+  $('#modFocus').onclick = () => openFocus([
+    ...m.lines.map(([who, en, pt], i) => ({ text: en, pt, voice: MOD_VOICE[who], label: MOD_NAME[who], src: modSrc(m, 'd', i), topic: s.title })),
+    ...m.phrases.map(([en, pt], i) => ({ text: en, pt, src: modSrc(m, 'f', i), topic: s.title, label: 'Frase-chave' }))
+  ], `Módulo ${m.id}`);
   $('#modRate').onchange = (e) => { modRate = +e.target.value; };
   $('#modStop').onclick = () => { stopAudio(); $('#modNow').textContent = ''; };
   $('#modPlay').onclick = async () => {
@@ -687,7 +849,7 @@ function renderProgresso() {
     ['OUVIDO', state.quiz.n ? `${Math.round(state.quiz.ok / state.quiz.n * 100)}%` : '–', 'acertos nos episódios'],
     ['PRONÚNCIA', pron[1] ? `${Math.round(pron[0] / pron[1] * 100)}%` : '–', 'pares mínimos certos'],
     ['NÍVEL', state.level, state.xrays.length ? 'pelo último Raio-X' : 'faça o Raio-X'],
-    ['SEMANA', `${((weekNumber() - 1) % 12) + 1}/12`, 'do ciclo atual']
+    ['SHADOWING', Object.keys(state.ph).length, `frases faladas · ${spokenToday()} hoje`]
   ];
   $('#statsGrid').innerHTML = stats.map(([a, b, c]) => `<div class="stat-card"><span>${a}</span><strong>${b}</strong><small>${c}</small></div>`).join('');
   const days = Array.from({ length: 14 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 13 + i); return d; });
@@ -702,7 +864,7 @@ function renderXray(result = null) {
     <p class="muted small">Pode começar com: ${XRAY_STARTERS.map(esc).join(' · ')}</p>
     <div class="row"><button class="mic primary big" id="xrayMic">🎤 Gravar Raio-X</button><span class="muted" id="xrayClock"></span></div>
     <div id="xrayResult">${result || ''}</div>
-    ${state.xrays.length ? `<p class="eyebrow">HISTÓRICO</p><table class="xray-table"><tr><th>Data</th><th>Nível</th><th>Palavras/min</th><th>Palavras diferentes</th><th></th></tr>${state.xrays.map((x, i) => `<tr><td>${x.date}</td><td>${esc(x.analysis?.nivel || '–')}</td><td>${x.wpm}</td><td>${x.unique}</td><td><button class="mini-play" data-xplay="${i}">▶ ouvir</button></td></tr>`).reverse().join('')}</table>` : ''}`;
+    ${state.xrays.length ? `<p class="eyebrow">HISTÓRICO</p><table class="xray-table"><tr><th>Data</th><th>Nível</th><th>Palavras/min</th><th>Palavras diferentes</th><th></th></tr>${state.xrays.map((x, i) => `<tr><td>${x.date}</td><td>${esc(x.analysis?.nivel || '–')}</td><td>${x.wpm}</td><td>${x.unique}</td><td><button class="mini-play" data-xplay="${i}">▶︎ ouvir</button></td></tr>`).reverse().join('')}</table>` : ''}`;
   $('#xray').querySelectorAll('[data-xplay]').forEach((b) => { b.onclick = async () => { const x = state.xrays[b.dataset.xplay]; playBlob(new Blob([await api.readFile(x.file)])); }; });
   let timer;
   $('#xrayMic').onclick = () => {
@@ -727,7 +889,7 @@ function renderXray(result = null) {
         <div class="stats-grid mini"><div class="stat-card"><span>NÍVEL</span><strong>${esc(a?.nivel || '–')}</strong></div><div class="stat-card"><span>PALAVRAS/MIN</span><strong>${x.wpm}</strong></div><div class="stat-card"><span>DIFERENTES</span><strong>${x.unique}</strong></div><div class="stat-card"><span>TEMPO</span><strong>${seconds}s</strong></div></div>
         <p class="muted">A máquina entendeu: “${esc(transcript)}”</p>
         ${a ? `<p>${esc(a.resumo)}</p><p><b>Pontos fortes:</b> ${a.pontos_fortes.map(esc).join(' · ')}</p><p><b>Prioridades agora:</b></p><ol>${a.prioridades.map((p) => `<li>${esc(p)}</li>`).join('')}</ol>
-        <p><b>Como um nativo diria:</b> ${esc(a.versao_melhorada)} <button class="mini-play" id="xrayBetter">▶</button></p>` : ''}</div>`);
+        <p><b>Como um nativo diria:</b> ${esc(a.versao_melhorada)} <button class="mini-play" id="xrayBetter">▶︎</button></p>` : ''}</div>`);
       if (a) $('#xrayBetter').onclick = () => say(a.versao_melhorada);
     });
   };

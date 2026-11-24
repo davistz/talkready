@@ -29,14 +29,14 @@
           <button class="nav-item" data-section="pronuncia"><span>◉</span> Pronúncia</button>
           <button class="nav-item" data-section="conversar"><span>✦</span> Conversar</button>
           <button class="nav-item" data-section="ouvir"><span>♫</span> Ouvir</button>
-          <button class="nav-item" data-section="progresso"><span>↗</span> Progresso</button>
+          <button class="nav-item" data-section="progresso"><span>↗︎</span> Progresso</button>
         </nav>
         <div class="sidebar-tip">
           <strong>Espaço = microfone</strong>
           <p>Aperte <b>Espaço</b> para falar e de novo para parar. Se a máquina entende você, um gringo também entende.</p>
         </div>
         <div class="voice-status" id="voiceStatus">🎙 Carregando voz…</div>
-        <button class="settings-link" id="openSettings">⚙ Ajustes</button>
+        <button class="settings-link" id="openSettings">⚙︎ Ajustes</button>
       </aside>
 
       <main class="main-content">
@@ -58,7 +58,7 @@
           </div>
           <div class="bar big"><span id="todayBar"></span></div>
           <div class="card setup-card" id="setupCard" hidden></div>
-          <button class="primary-button hero-button" id="guided">▶ Começar treino guiado</button>
+          <button class="primary-button hero-button" id="guided">▶︎ Começar treino guiado</button>
           <button class="card module-cta" id="moduleCta"></button>
           <div class="block-grid" id="blockGrid"></div>
           <div class="two-col">
@@ -155,6 +155,8 @@
         <div class="toast" id="toast" role="status"></div>
       </main>
     </div>
+
+    <div class="focus" id="focus" role="dialog" aria-modal="true" aria-label="Treino em foco" hidden></div>
 
     <div class="modal-backdrop" id="settings" aria-hidden="true">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
