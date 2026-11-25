@@ -19,7 +19,7 @@ const PHASES = [
 const KIT = ['Sorry, can you say that again?', 'Can you speak more slowly, please?', 'What does that mean?', 'How do you say "" in English?', 'Let me think...'];
 
 // ---------- estado ----------
-const fresh = () => ({ v: 3, start: dayKey(), level: 'A1', goals: { weekday: 60, weekend: 60 }, newPerDay: 10, days: {}, cards: [], introduced: {}, convs: 0, missions: {}, pron: {}, quiz: { ok: 0, n: 0 }, xrays: [], soundPick: null, reminder: null, modules: {}, ph: {}, phDays: {} });
+const fresh = () => ({ v: 3, start: dayKey(), level: 'A1', goals: { weekday: 60, weekend: 60 }, newPerDay: 10, days: {}, cards: [], introduced: {}, convs: 0, missions: {}, pron: {}, quiz: { ok: 0, n: 0 }, xrays: [], soundPick: null, reminder: null, modules: {}, ph: {}, phDays: {}, respell: {}, showSay: true });
 let state;
 try { state = { ...fresh(), ...JSON.parse(localStorage.getItem('talkready-v3')) }; } catch { state = fresh(); }
 if (!state.cards.length) state.cards = STARTER_DECK.map(([en, pt, tag], i) => newCard(i + 1, en, pt, tag));
@@ -363,6 +363,7 @@ function renderSrs() {
     <p class="srs-pt">${esc(c.pt)}</p>
     ${flipped ? `
       <p class="srs-en">${esc(c.en)}</p>
+      ${sayLine(c.en, 'ph-say srs-say')}
       ${srsHeard ? `<p class="result">${resultHtml(srsHeard.r, srsHeard.text)}</p>` : ''}
       <div class="row center"><button class="round-button" id="srsPlay" title="Ouvir">▶︎</button><button class="outline-button" id="srsSlow">🐢 Devagar</button>${srsHeard ? '<button class="outline-button" id="srsMe">▶︎ Você</button>' : ''}</div>
       <div class="grades">${['Errei', 'Difícil', 'Bom', 'Fácil'].map((g, i) => `<button data-g="${i}" class="g${i} ${i === suggested ? 'suggested' : ''}">${g}<small>${['volta hoje', 'pouco tempo', 'normal', 'bem depois'][i]}</small></button>`).join('')}</div>`
@@ -413,6 +414,32 @@ $('#genDeck').onclick = async () => {
   btn.disabled = false; btn.textContent = 'Gerar 10';
 };
 
+// ---------- "como se fala": pronúncia escrita em português (gerada pelo Claude uma vez e guardada por frase) ----------
+const SAY_LEGEND = 'MAIÚSCULA = sílaba forte · th = língua entre os dentes · â = "a" neutro · ‿ = palavras emendadas';
+const sayWanted = new Set(), sayLoading = new Set();
+let sayTimer = null;
+function sayLine(text, cls = 'ph-say') {
+  if (state.showSay === false) return '';
+  if (!state.respell[text]) { sayWanted.add(text); clearTimeout(sayTimer); sayTimer = setTimeout(flushSay, 60); }
+  return `<p class="${cls}" data-say="${esc(text)}" title="${SAY_LEGEND}">${esc(state.respell[text] || '')}</p>`;
+}
+async function flushSay() {
+  const texts = [...sayWanted].filter((t) => !state.respell[t] && !sayLoading.has(t)).slice(0, 40);
+  sayWanted.clear();
+  if (!texts.length || !(await api.hasKey())) return;
+  texts.forEach((t) => sayLoading.add(t));
+  try {
+    const { itens } = await api.ai('respell', { texts });
+    itens.forEach((it, i) => {
+      const key = texts.includes(it.en) ? it.en : texts[i]; // se o modelo mexer no texto, vale a ordem
+      if (key && it.som) state.respell[key] = it.som;
+    });
+    save();
+    document.querySelectorAll('[data-say]').forEach((el) => { const v = state.respell[el.dataset.say]; if (v) el.textContent = v; });
+  } catch (e) { console.warn('respell', e); }
+  texts.forEach((t) => sayLoading.delete(t));
+}
+
 // ---------- prática de frases: fica salva por frase e por dia ----------
 const spokenToday = () => Object.keys(state.phDays[dayKey()] || {}).length;
 const todayScore = (text) => (state.phDays[dayKey()] || {})[text];
@@ -457,7 +484,7 @@ function phraseCard(text, { voice = 'af_heart', pt = '', label = '', topic = '',
   const last = lastResult(text);
   const i = PH.push({ text, voice, topic, src, pt, label, heard: last?.heard }) - 1;
   return `<div class="card phrase ${todayScore(text) !== undefined ? 'practiced' : ''}" data-ph="${i}">
-    <div class="row">${label ? `<span class="speaker">${esc(label)}</span>` : ''}<p class="ph-text">${esc(text)}</p><span class="ph-chip">${statusChip(text)}</span>
+    <div class="row">${label ? `<span class="speaker">${esc(label)}</span>` : ''}<div class="ph-main"><p class="ph-text">${esc(text)}</p>${sayLine(text)}</div><span class="ph-chip">${statusChip(text)}</span>
       <button class="round-button" data-act="play" title="Ouvir">▶︎</button><button class="outline-button" data-act="slow" title="Devagar">🐢</button><button class="mic" data-act="rec" title="Gravar">🎤</button></div>
     ${pt ? `<p class="ph-pt muted" hidden>${esc(pt)}</p>` : ''}
     <div class="ph-result">${last ? resultBlock(PH[i], last.cmp, last.heard) : ''}</div></div>`;
@@ -541,6 +568,7 @@ function renderFocus(autoplay) {
     <div class="focus-body" id="focusBody">
       ${it.label ? `<p class="focus-label">${esc(it.label)}</p>` : ''}
       <p class="focus-text">${esc(it.text)}</p>
+      ${sayLine(it.text, 'focus-say')}
       ${it.pt ? `<button class="focus-pt" id="focusPt">Ver em português</button>` : ''}
       <div class="focus-result" id="focusResult">${last ? focusResult(it, last.cmp, last.heard) : '<p class="muted small">Ouça, repita junto 2 ou 3 vezes e depois grave.</p>'}</div>
     </div>
@@ -901,6 +929,7 @@ async function openSettings() {
   $('#keyInput2').value = ''; $('#levelSel').value = state.level;
   $('#goalWeekday').value = state.goals.weekday; $('#goalWeekend').value = state.goals.weekend;
   $('#newPerDay').value = state.newPerDay;
+  $('#showSay').checked = state.showSay !== false;
   $('#reminderOn').checked = Boolean(state.reminder); $('#reminderTime').value = state.reminder || '19:00';
   $('#reminderRow').hidden = api.platform === 'web';
   $('#settings').classList.add('open');
@@ -913,6 +942,7 @@ $('#saveSettings').onclick = async () => {
   state.level = $('#levelSel').value;
   state.goals = { weekday: clamp($('#goalWeekday').value, 15, 180, 60), weekend: clamp($('#goalWeekend').value, 15, 180, 60) };
   state.newPerDay = clamp($('#newPerDay').value, 0, 30, 10);
+  state.showSay = $('#showSay').checked;
   const reminder = $('#reminderOn').checked ? $('#reminderTime').value : null;
   if (reminder !== state.reminder) {
     const ok = await api.setReminder(reminder);

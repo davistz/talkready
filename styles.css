@@ -418,3 +418,12 @@ body.focus-open { overflow:hidden; }
   .phrase > .row .round-button, .phrase > .row .outline-button, .phrase > .row .mic { order:3; }
   .section-head { flex-wrap:wrap; }
 }
+
+/* como se fala (pronúncia escrita em português) */
+.ph-say, .focus-say { font-family:var(--mono); color:#9db1ff; letter-spacing:.2px; margin:4px 0 0; }
+.ph-say { font-size:14px; }
+.ph-say:empty, .focus-say:empty { display:none; }
+.srs-say { font-size:16px; text-align:center; margin:-6px 0 14px; }
+.focus-say { font-size:clamp(16px, 4.6vw, 22px); margin:2px 0 0; }
+.ph-main { flex:1; min-width:0; }
+@media (max-width:760px) { .phrase > .row .ph-main { flex:1 1 100%; } }

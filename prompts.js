@@ -64,6 +64,22 @@ Analise só as falas do Davi.
     schema: obj({ dica: str })
   }),
 
+  respell: ({ texts }) => ({
+    effort: 'low',
+    system: `Você escreve a pronúncia de frases em inglês com a escrita do português do Brasil, para um brasileiro ler em voz alta e soar o mais perto possível do inglês americano falado de verdade (ritmo e emendas naturais, não palavra por palavra de dicionário).
+Regras:
+- Palavras separadas por espaço. Quando duas palavras se emendam na fala, junte com "‿" (ex.: "uóts‿iór NÊIM").
+- Palavra com 2+ sílabas: sílabas separadas por hífen e a sílaba forte em MAIÚSCULAS ("â-BAUT", "PRÓ-blâm"). Monossílabo forte em MAIÚSCULAS, palavra fraca (artigos, preposições, auxiliares) em minúsculas.
+- "â" = som neutro (schwa). "th" = TH com a língua entre os dentes (nunca troque por f, t, d ou s). R sempre "r", nunca "rr". W = "u" ("uót"), Y = "i" ("iés"), J = "dj", CH = "tch", SH = "ch", S com som de Z = "z".
+- Vogal longa com letra dobrada ("chiip" para sheep, "chip" para ship; "fuud" para food, "fud" para foot quando curto). Use é/ó para vogal aberta e ê/ô para fechada quando ajudar.
+- Nunca acrescente vogal no fim de consoante nem antes de S inicial: "stop" = "stóp" (nunca "stópi"), "school" = "skuul" (nunca "isskul"), "big" = "big" (nunca "bigui").
+- Formas fracas como se fala de verdade: "to" = "tâ", "and" = "ân", "for" = "fâr", "can" = "kân", "you" no fim de pergunta pode virar "iâ".
+- Mantenha a pontuação final (?, !).
+Devolva um item para cada frase recebida, com "en" exatamente igual ao texto original.`,
+    messages: [{ role: 'user', content: `Frases:\n${texts.map((t) => `- ${t}`).join('\n')}` }],
+    schema: obj({ itens: arr(obj({ en: str, som: str })) })
+  }),
+
   xray: ({ transcript, seconds, level }) => ({
     effort: 'medium',
     system: 'Você avalia a fala em inglês de um brasileiro. Responda em português do Brasil, honesto e encorajador.',
@@ -85,6 +101,7 @@ const MODELS = {
   deck: 'claude-haiku-5-5',
   review: 'claude-opus-5-5',
   why: 'claude-opus-5-5',
+  respell: 'claude-sonnet-5-5',
   xray: 'claude-opus-5-5'
 };
 
